@@ -254,6 +254,30 @@ public class ResultTests
     }
 
     [Test]
+    public async Task Tap_invokes_action_on_success()
+    {
+        var result = Result.Success();
+        var invoked = false;
+
+        var tapped = result.Tap(() => invoked = true);
+
+        await Assert.That(invoked).IsTrue();
+        await Assert.That(tapped).IsEqualTo(result);
+    }
+
+    [Test]
+    public async Task Tap_does_not_invoke_action_on_failure()
+    {
+        var result = Result.Failure(Error.Failure("oops", "Something went wrong"));
+        var invoked = false;
+
+        var tapped = result.Tap(() => invoked = true);
+
+        await Assert.That(invoked).IsFalse();
+        await Assert.That(tapped).IsEqualTo(result);
+    }
+
+    [Test]
     public async Task Successes_are_equal()
     {
         var a = Result.Success();

@@ -113,6 +113,17 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
             ? binder(_value!)
             : Result<TOut>.Failure(_error!);
 
+    /// <summary>
+    /// Invokes <paramref name="action"/> on the success value if this result is successful,
+    /// then returns the result unchanged.
+    /// </summary>
+    /// <param name="action">A side-effecting action to perform on the success value.</param>
+    public Result<TValue> Tap(Action<TValue> action)
+    {
+        if (IsSuccess) action(_value!);
+        return this;
+    }
+
     /// <inheritdoc />
     public bool Equals(Result<TValue> other)
         => IsSuccess == other.IsSuccess

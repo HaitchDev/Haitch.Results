@@ -99,6 +99,17 @@ public readonly struct Result : IEquatable<Result>
             ? binder()
             : Result<TOut>.Failure(_error!);
 
+    /// <summary>
+    /// Invokes <paramref name="action"/> if this result is successful,
+    /// then returns the result unchanged.
+    /// </summary>
+    /// <param name="action">A side-effecting action to perform on success.</param>
+    public Result Tap(Action action)
+    {
+        if (IsSuccess) action();
+        return this;
+    }
+
     /// <inheritdoc />
     public bool Equals(Result other)
         => IsSuccess == other.IsSuccess
