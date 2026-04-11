@@ -278,6 +278,31 @@ public class ResultTests
     }
 
     [Test]
+    public async Task TapError_invokes_action_on_failure()
+    {
+        var error = Error.NotFound("user.not_found", "User not found");
+        var result = Result.Failure(error);
+        Error? captured = null;
+
+        var tapped = result.TapError(e => captured = e);
+
+        await Assert.That(captured).IsEqualTo(error);
+        await Assert.That(tapped).IsEqualTo(result);
+    }
+
+    [Test]
+    public async Task TapError_does_not_invoke_action_on_success()
+    {
+        var result = Result.Success();
+        var invoked = false;
+
+        var tapped = result.TapError(_ => invoked = true);
+
+        await Assert.That(invoked).IsFalse();
+        await Assert.That(tapped).IsEqualTo(result);
+    }
+
+    [Test]
     public async Task Successes_are_equal()
     {
         var a = Result.Success();

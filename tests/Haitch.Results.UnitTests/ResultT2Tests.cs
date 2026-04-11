@@ -240,6 +240,30 @@ public class ResultT2Tests
     }
 
     [Test]
+    public async Task TapError_invokes_action_on_failure()
+    {
+        var result = Result<int, string>.Failure("oops");
+        string? captured = null;
+
+        var tapped = result.TapError(e => captured = e);
+
+        await Assert.That(captured).IsEqualTo("oops");
+        await Assert.That(tapped).IsEqualTo(result);
+    }
+
+    [Test]
+    public async Task TapError_does_not_invoke_action_on_success()
+    {
+        var result = Result<int, string>.Success(42);
+        var invoked = false;
+
+        var tapped = result.TapError(_ => invoked = true);
+
+        await Assert.That(invoked).IsFalse();
+        await Assert.That(tapped).IsEqualTo(result);
+    }
+
+    [Test]
     public async Task Successes_with_same_value_are_equal()
     {
         var a = Result<int, string>.Success(42);

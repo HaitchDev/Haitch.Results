@@ -126,6 +126,17 @@ public readonly struct Result<TValue, TError> : IEquatable<Result<TValue, TError
         return this;
     }
 
+    /// <summary>
+    /// Invokes <paramref name="action"/> on the error if this result is a failure,
+    /// then returns the result unchanged.
+    /// </summary>
+    /// <param name="action">A side-effecting action to perform on the error.</param>
+    public Result<TValue, TError> TapError(Action<TError> action)
+    {
+        if (IsFailure) action(_error!);
+        return this;
+    }
+
     /// <inheritdoc />
     public bool Equals(Result<TValue, TError> other)
         => IsSuccess == other.IsSuccess
