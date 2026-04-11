@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="TUnit" />
+        <PackageReference Include="TUnit" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Haitch.Results\Haitch.Results.csproj" />
+        <ProjectReference Include="..\..\src\Haitch.Results\Haitch.Results.csproj" />
     </ItemGroup>
 
 </Project>

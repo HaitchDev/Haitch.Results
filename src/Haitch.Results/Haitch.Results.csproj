@@ -1,2 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+    </ItemGroup>
+    
+    <PropertyGroup>
+        <PackageId>Haitch.Results</PackageId>
+        <Description>A lightweight Result type and structured Error model for railway-oriented programming in modern .NET. Part of the Haitch suite of foundational libraries.</Description>
+        <PackageTags>result;errors;railway;functional;haitch;foundational</PackageTags>
+    </PropertyGroup>
+
 </Project>
