@@ -259,6 +259,52 @@ public class ResultT1Tests
     }
 
     [Test]
+    public async Task Ensure_returns_original_result_when_predicate_passes()
+    {
+        var result = Result<int>.Success(42);
+        var error = Error.Validation("invalid", "Value must be positive");
+
+        var ensured = result.Ensure(v => v > 0, error);
+
+        await Assert.That(ensured).IsEqualTo(result);
+    }
+
+    [Test]
+    public async Task Ensure_returns_failure_when_predicate_fails()
+    {
+        var result = Result<int>.Success(-1);
+        var error = Error.Validation("invalid", "Value must be positive");
+
+        var ensured = result.Ensure(v => v > 0, error);
+
+        await Assert.That(ensured.IsFailure).IsTrue();
+        await Assert.That(ensured.Error).IsEqualTo(error);
+    }
+
+    [Test]
+    public async Task Ensure_does_not_invoke_predicate_on_failure()
+    {
+        var result = Result<int>.Failure(Error.Failure("oops", "Something went wrong"));
+        var invoked = false;
+
+        result.Ensure(_ => { invoked = true; return true; }, Error.Validation("x", "x"));
+
+        await Assert.That(invoked).IsFalse();
+    }
+
+    [Test]
+    public async Task Ensure_propagates_original_error_on_failure()
+    {
+        var originalError = Error.NotFound("user.not_found", "User not found");
+        var result = Result<int>.Failure(originalError);
+        var ensureError = Error.Validation("invalid", "Value must be positive");
+
+        var ensured = result.Ensure(v => v > 0, ensureError);
+
+        await Assert.That(ensured.Error).IsEqualTo(originalError);
+    }
+
+    [Test]
     public async Task Successes_with_same_value_are_equal()
     {
         var a = Result<int>.Success(42);

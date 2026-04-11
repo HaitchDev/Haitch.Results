@@ -303,6 +303,52 @@ public class ResultTests
     }
 
     [Test]
+    public async Task Ensure_returns_original_result_when_predicate_passes()
+    {
+        var result = Result.Success();
+        var error = Error.Validation("invalid", "Precondition failed");
+
+        var ensured = result.Ensure(() => true, error);
+
+        await Assert.That(ensured).IsEqualTo(result);
+    }
+
+    [Test]
+    public async Task Ensure_returns_failure_when_predicate_fails()
+    {
+        var result = Result.Success();
+        var error = Error.Validation("invalid", "Precondition failed");
+
+        var ensured = result.Ensure(() => false, error);
+
+        await Assert.That(ensured.IsFailure).IsTrue();
+        await Assert.That(ensured.Error).IsEqualTo(error);
+    }
+
+    [Test]
+    public async Task Ensure_does_not_invoke_predicate_on_failure()
+    {
+        var result = Result.Failure(Error.Failure("oops", "Something went wrong"));
+        var invoked = false;
+
+        result.Ensure(() => { invoked = true; return true; }, Error.Validation("x", "x"));
+
+        await Assert.That(invoked).IsFalse();
+    }
+
+    [Test]
+    public async Task Ensure_propagates_original_error_on_failure()
+    {
+        var originalError = Error.NotFound("user.not_found", "User not found");
+        var result = Result.Failure(originalError);
+        var ensureError = Error.Validation("invalid", "Precondition failed");
+
+        var ensured = result.Ensure(() => false, ensureError);
+
+        await Assert.That(ensured.Error).IsEqualTo(originalError);
+    }
+
+    [Test]
     public async Task Successes_are_equal()
     {
         var a = Result.Success();

@@ -264,6 +264,48 @@ public class ResultT2Tests
     }
 
     [Test]
+    public async Task Ensure_returns_original_result_when_predicate_passes()
+    {
+        var result = Result<int, string>.Success(42);
+
+        var ensured = result.Ensure(v => v > 0, "must be positive");
+
+        await Assert.That(ensured).IsEqualTo(result);
+    }
+
+    [Test]
+    public async Task Ensure_returns_failure_when_predicate_fails()
+    {
+        var result = Result<int, string>.Success(-1);
+
+        var ensured = result.Ensure(v => v > 0, "must be positive");
+
+        await Assert.That(ensured.IsFailure).IsTrue();
+        await Assert.That(ensured.Error).IsEqualTo("must be positive");
+    }
+
+    [Test]
+    public async Task Ensure_does_not_invoke_predicate_on_failure()
+    {
+        var result = Result<int, string>.Failure("oops");
+        var invoked = false;
+
+        result.Ensure(_ => { invoked = true; return true; }, "x");
+
+        await Assert.That(invoked).IsFalse();
+    }
+
+    [Test]
+    public async Task Ensure_propagates_original_error_on_failure()
+    {
+        var result = Result<int, string>.Failure("original");
+
+        var ensured = result.Ensure(v => v > 0, "ensure error");
+
+        await Assert.That(ensured.Error).IsEqualTo("original");
+    }
+
+    [Test]
     public async Task Successes_with_same_value_are_equal()
     {
         var a = Result<int, string>.Success(42);

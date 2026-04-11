@@ -137,6 +137,17 @@ public readonly struct Result<TValue, TError> : IEquatable<Result<TValue, TError
         return this;
     }
 
+    /// <summary>
+    /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+    /// <see langword="false"/>; otherwise returns the result unchanged.
+    /// </summary>
+    /// <param name="predicate">A predicate evaluated against the success value.</param>
+    /// <param name="error">The error to use if the predicate fails.</param>
+    public Result<TValue, TError> Ensure(Func<TValue, bool> predicate, TError error)
+        => IsSuccess && !predicate(_value!)
+            ? Failure(error)
+            : this;
+
     /// <inheritdoc />
     public bool Equals(Result<TValue, TError> other)
         => IsSuccess == other.IsSuccess
