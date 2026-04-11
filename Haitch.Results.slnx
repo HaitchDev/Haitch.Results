@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Haitch.Results/Haitch.Results.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Haitch.Results.UnitTests/Haitch.Results.UnitTests.csproj" />
+  </Folder>
+</Solution>
