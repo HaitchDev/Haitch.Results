@@ -9,7 +9,7 @@
         <RepositoryUrl>https://github.com/HaitchDev/Haitch.Results</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageIcon>..\icon.png</PackageIcon>
+        <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -18,6 +18,7 @@
         <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
         <Deterministic>true</Deterministic>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>0.1.0</Version>
     </PropertyGroup>
 
