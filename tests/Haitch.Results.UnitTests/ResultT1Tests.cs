@@ -89,6 +89,40 @@ public class ResultT1Tests
 
         await Assert.That(output).IsEqualTo("error:oops");
     }
+    
+    [Test]
+    public async Task Map_transforms_value_on_success()
+    {
+        var result = Result<int>.Success(42);
+
+        var mapped = result.Map(v => v.ToString());
+
+        await Assert.That(mapped.IsSuccess).IsTrue();
+        await Assert.That(mapped.Value).IsEqualTo("42");
+    }
+
+    [Test]
+    public async Task Map_propagates_error_on_failure()
+    {
+        var error = Error.NotFound("user.not_found", "User not found");
+        var result = Result<int>.Failure(error);
+
+        var mapped = result.Map(v => v.ToString());
+
+        await Assert.That(mapped.IsFailure).IsTrue();
+        await Assert.That(mapped.Error).IsEqualTo(error);
+    }
+
+    [Test]
+    public async Task Map_does_not_invoke_mapper_on_failure()
+    {
+        var result = Result<int>.Failure(Error.Failure("oops", "Something went wrong"));
+        var invoked = false;
+
+        result.Map(v => { invoked = true; return v.ToString(); });
+
+        await Assert.That(invoked).IsFalse();
+    }
 
     [Test]
     public async Task Successes_with_same_value_are_equal()

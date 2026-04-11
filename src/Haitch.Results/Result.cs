@@ -56,6 +56,17 @@ public readonly struct Result : IEquatable<Result>
     /// </summary>
     public TOut Match<TOut>(Func<TOut> onSuccess, Func<Error, TOut> onFailure)
         => IsSuccess ? onSuccess() : onFailure(_error!);
+    
+    /// <summary>
+    /// Produces a value using <paramref name="mapper"/> if the result is successful;
+    /// otherwise propagates the existing error unchanged.
+    /// </summary>
+    /// <typeparam name="TOut">The type of the value to produce on success.</typeparam>
+    /// <param name="mapper">A function that produces the value to wrap in the result.</param>
+    public Result<TOut> Map<TOut>(Func<TOut> mapper)
+        => IsSuccess
+            ? Result<TOut>.Success(mapper())
+            : Result<TOut>.Failure(_error!);
 
     /// <inheritdoc />
     public bool Equals(Result other)
