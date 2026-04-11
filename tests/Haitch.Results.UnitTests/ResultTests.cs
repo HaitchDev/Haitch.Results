@@ -111,6 +111,44 @@ public class ResultTests
     }
 
     [Test]
+    public async Task MapError_transforms_error_on_failure()
+    {
+        var original = Error.NotFound("user.not_found", "User not found");
+        var result = Result.Failure(original);
+
+        var mapped = result.MapError(e => Error.Validation("validation." + e.Code, e.Message));
+
+        await Assert.That(mapped.IsFailure).IsTrue();
+        await Assert.That(mapped.Error.Code).IsEqualTo("validation.user.not_found");
+        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Validation);
+    }
+
+    [Test]
+    public async Task MapError_propagates_success_unchanged()
+    {
+        var result = Result.Success();
+
+        var mapped = result.MapError(_ => Error.Validation("x", "x"));
+
+        await Assert.That(mapped.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task MapError_does_not_invoke_mapper_on_success()
+    {
+        var result = Result.Success();
+        var invoked = false;
+
+        result.MapError(e =>
+        {
+            invoked = true;
+            return e;
+        });
+
+        await Assert.That(invoked).IsFalse();
+    }
+
+    [Test]
     public async Task Successes_are_equal()
     {
         var a = Result.Success();

@@ -92,6 +92,16 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
             ? Result<TOut>.Success(mapper(_value!))
             : Result<TOut>.Failure(_error!);
 
+    /// <summary>
+    /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+    /// otherwise propagates the success value unchanged.
+    /// </summary>
+    /// <param name="mapper">A function that transforms the error.</param>
+    public Result<TValue> MapError(Func<Error, Error> mapper)
+        => IsSuccess
+            ? this
+            : Failure(mapper(_error!));
+
     /// <inheritdoc />
     public bool Equals(Result<TValue> other)
         => IsSuccess == other.IsSuccess

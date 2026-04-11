@@ -122,6 +122,52 @@ public class ResultT2Tests
     }
 
     [Test]
+    public async Task MapError_transforms_error_on_failure()
+    {
+        var result = Result<int, string>.Failure("oops");
+
+        var mapped = result.MapError(e => $"wrapped:{e}");
+
+        await Assert.That(mapped.IsFailure).IsTrue();
+        await Assert.That(mapped.Error).IsEqualTo("wrapped:oops");
+    }
+
+    [Test]
+    public async Task MapError_transforms_error_to_different_type()
+    {
+        var result = Result<int, string>.Failure("oops");
+
+        var mapped = result.MapError(e => Error.Validation("err", e));
+
+        await Assert.That(mapped.IsFailure).IsTrue();
+        await Assert.That(mapped.Error.Code).IsEqualTo("err");
+        await Assert.That(mapped.Error.Message).IsEqualTo("oops");
+        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Validation);
+    }
+
+    [Test]
+    public async Task MapError_propagates_value_on_success()
+    {
+        var result = Result<int, string>.Success(42);
+
+        var mapped = result.MapError(e => $"wrapped:{e}");
+
+        await Assert.That(mapped.IsSuccess).IsTrue();
+        await Assert.That(mapped.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task MapError_does_not_invoke_mapper_on_success()
+    {
+        var result = Result<int, string>.Success(42);
+        var invoked = false;
+
+        result.MapError(e => { invoked = true; return e; });
+
+        await Assert.That(invoked).IsFalse();
+    }
+
+    [Test]
     public async Task Successes_with_same_value_are_equal()
     {
         var a = Result<int, string>.Success(42);
