@@ -162,7 +162,24 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
             ? HashCode.Combine(true, _value)
             : HashCode.Combine(false, _error);
 
+    /// <summary>
+    /// Determines whether two <see cref="Result{TValue}"/> instances are equal to each other.
+    /// </summary>
+    /// <param name="left">The first <see cref="Result{TValue}"/> to compare.</param>
+    /// <param name="right">The second <see cref="Result{TValue}"/> to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if the two <see cref="Result{TValue}"/> instances are equal; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool operator ==(Result<TValue> left, Result<TValue> right) => left.Equals(right);
+    
+    /// <summary>
+    /// Determines whether two <see cref="Result{TValue}"/> instances are not equal to each other.
+    /// </summary>
+    /// <param name="left">The first <see cref="Result{TValue}"/> to compare.</param>
+    /// <param name="right">The second <see cref="Result{TValue}"/> to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if the two <see cref="Result{TValue}"/> instances are not equal; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool operator !=(Result<TValue> left, Result<TValue> right) => !left.Equals(right);
 
     #region Factories

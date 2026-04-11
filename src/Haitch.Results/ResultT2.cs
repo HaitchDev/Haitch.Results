@@ -163,7 +163,24 @@ public readonly struct Result<TValue, TError> : IEquatable<Result<TValue, TError
         => IsSuccess
             ? HashCode.Combine(true, _value)
             : HashCode.Combine(false, _error);
-
+    
+    /// <summary>
+    /// Determines whether two <see cref="Result{TValue, TError}"/> instances are equal to each other.
+    /// </summary>
+    /// <param name="left">The first <see cref="Result{TValue, TError}"/> to compare.</param>
+    /// <param name="right">The second <see cref="Result{TValue, TError}"/> to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if the two <see cref="Result{TValue, TError}"/> instances are equal; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool operator ==(Result<TValue, TError> left, Result<TValue, TError> right) => left.Equals(right);
+    
+    /// <summary>
+    /// Determines whether two <see cref="Result{TValue, TError}"/> instances are not equal to each other.
+    /// </summary>
+    /// <param name="left">The first <see cref="Result{TValue, TError}"/> to compare.</param>
+    /// <param name="right">The second <see cref="Result{TValue, TError}"/> to compare.</param>
+    /// <returns>
+    /// <see langword="true"/> if the two <see cref="Result{TValue, TError}"/> instances are not equal; otherwise, <see langword="false"/>.
+    /// </returns>
     public static bool operator !=(Result<TValue, TError> left, Result<TValue, TError> right) => !left.Equals(right);
 }
