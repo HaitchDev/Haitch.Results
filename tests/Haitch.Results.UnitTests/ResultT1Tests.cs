@@ -158,6 +158,56 @@ public class ResultT1Tests
 
         await Assert.That(invoked).IsFalse();
     }
+    
+    [Test]
+    public async Task Bind_chains_to_next_result_on_success()
+    {
+        var result = Result<int>.Success(42);
+
+        var bound = result.Bind(v => Result<string>.Success($"value:{v}"));
+
+        await Assert.That(bound.IsSuccess).IsTrue();
+        await Assert.That(bound.Value).IsEqualTo("value:42");
+    }
+
+    [Test]
+    public async Task Bind_propagates_error_from_outer_result()
+    {
+        var error = Error.NotFound("user.not_found", "User not found");
+        var result = Result<int>.Failure(error);
+
+        var bound = result.Bind(v => Result<string>.Success($"value:{v}"));
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo(error);
+    }
+
+    [Test]
+    public async Task Bind_propagates_error_from_inner_result()
+    {
+        var innerError = Error.Validation("invalid", "Invalid value");
+        var result = Result<int>.Success(42);
+
+        var bound = result.Bind(_ => Result<string>.Failure(innerError));
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo(innerError);
+    }
+
+    [Test]
+    public async Task Bind_does_not_invoke_binder_on_failure()
+    {
+        var result = Result<int>.Failure(Error.Failure("oops", "Something went wrong"));
+        var invoked = false;
+
+        result.Bind(v =>
+        {
+            invoked = true;
+            return Result<string>.Success($"value:{v}");
+        });
+
+        await Assert.That(invoked).IsFalse();
+    }
 
     [Test]
     public async Task Successes_with_same_value_are_equal()

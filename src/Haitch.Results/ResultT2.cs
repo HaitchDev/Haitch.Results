@@ -103,6 +103,17 @@ public readonly struct Result<TValue, TError> : IEquatable<Result<TValue, TError
         => IsSuccess
             ? Result<TValue, TOutError>.Success(_value!)
             : Result<TValue, TOutError>.Failure(mapper(_error!));
+    
+    /// <summary>
+    /// Chains a result-returning operation if this result is successful;
+    /// otherwise propagates the existing error unchanged.
+    /// </summary>
+    /// <typeparam name="TOut">The type of the new success value.</typeparam>
+    /// <param name="binder">A function that produces the next result from the success value.</param>
+    public Result<TOut, TError> Bind<TOut>(Func<TValue, Result<TOut, TError>> binder)
+        => IsSuccess
+            ? binder(_value!)
+            : Result<TOut, TError>.Failure(_error!);
 
     /// <inheritdoc />
     public bool Equals(Result<TValue, TError> other)

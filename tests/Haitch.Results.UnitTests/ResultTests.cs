@@ -149,6 +149,111 @@ public class ResultTests
     }
 
     [Test]
+    public async Task Bind_to_void_result_chains_when_successful()
+    {
+        var result = Result.Success();
+        var invoked = false;
+
+        var bound = result.Bind(() =>
+        {
+            invoked = true;
+            return Result.Success();
+        });
+
+        await Assert.That(invoked).IsTrue();
+        await Assert.That(bound.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task Bind_to_void_result_propagates_error_from_outer_result()
+    {
+        var error = Error.Failure("oops", "Something went wrong");
+        var result = Result.Failure(error);
+
+        var bound = result.Bind(Result.Success);
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo(error);
+    }
+
+    [Test]
+    public async Task Bind_to_void_result_propagates_error_from_inner_result()
+    {
+        var innerError = Error.Validation("invalid", "Invalid value");
+        var result = Result.Success();
+
+        var bound = result.Bind(() => Result.Failure(innerError));
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo(innerError);
+    }
+
+    [Test]
+    public async Task Bind_to_void_result_does_not_invoke_binder_on_failure()
+    {
+        var result = Result.Failure(Error.Failure("oops", "Something went wrong"));
+        var invoked = false;
+
+        result.Bind(() =>
+        {
+            invoked = true;
+            return Result.Success();
+        });
+
+        await Assert.That(invoked).IsFalse();
+    }
+
+    [Test]
+    public async Task Bind_to_value_result_widens_type_on_success()
+    {
+        var result = Result.Success();
+
+        var bound = result.Bind(() => Result<int>.Success(42));
+
+        await Assert.That(bound.IsSuccess).IsTrue();
+        await Assert.That(bound.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task Bind_to_value_result_propagates_error_from_outer_result()
+    {
+        var error = Error.NotFound("user.not_found", "User not found");
+        var result = Result.Failure(error);
+
+        var bound = result.Bind(() => Result<int>.Success(42));
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo(error);
+    }
+
+    [Test]
+    public async Task Bind_to_value_result_propagates_error_from_inner_result()
+    {
+        var innerError = Error.Validation("invalid", "Invalid value");
+        var result = Result.Success();
+
+        var bound = result.Bind(() => Result<int>.Failure(innerError));
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo(innerError);
+    }
+
+    [Test]
+    public async Task Bind_to_value_result_does_not_invoke_binder_on_failure()
+    {
+        var result = Result.Failure(Error.Failure("oops", "Something went wrong"));
+        var invoked = false;
+
+        result.Bind(() =>
+        {
+            invoked = true;
+            return Result<int>.Success(42);
+        });
+
+        await Assert.That(invoked).IsFalse();
+    }
+
+    [Test]
     public async Task Successes_are_equal()
     {
         var a = Result.Success();

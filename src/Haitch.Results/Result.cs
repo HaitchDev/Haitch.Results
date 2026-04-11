@@ -77,6 +77,27 @@ public readonly struct Result : IEquatable<Result>
         => IsSuccess
             ? this
             : Failure(mapper(_error!));
+    
+    /// <summary>
+    /// Chains a result-returning operation if this result is successful;
+    /// otherwise propagates the existing error unchanged.
+    /// </summary>
+    /// <param name="binder">A function that produces the next result.</param>
+    public Result Bind(Func<Result> binder)
+        => IsSuccess
+            ? binder()
+            : this;
+
+    /// <summary>
+    /// Chains a result-returning operation that produces a value if this result is successful;
+    /// otherwise propagates the existing error unchanged.
+    /// </summary>
+    /// <typeparam name="TOut">The type of the value produced on success.</typeparam>
+    /// <param name="binder">A function that produces the next result.</param>
+    public Result<TOut> Bind<TOut>(Func<Result<TOut>> binder)
+        => IsSuccess
+            ? binder()
+            : Result<TOut>.Failure(_error!);
 
     /// <inheritdoc />
     public bool Equals(Result other)

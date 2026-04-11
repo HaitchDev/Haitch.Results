@@ -166,6 +166,54 @@ public class ResultT2Tests
 
         await Assert.That(invoked).IsFalse();
     }
+    
+    [Test]
+    public async Task Bind_chains_to_next_result_on_success()
+    {
+        var result = Result<int, string>.Success(42);
+
+        var bound = result.Bind(v => Result<string, string>.Success($"value:{v}"));
+
+        await Assert.That(bound.IsSuccess).IsTrue();
+        await Assert.That(bound.Value).IsEqualTo("value:42");
+    }
+
+    [Test]
+    public async Task Bind_propagates_error_from_outer_result()
+    {
+        var result = Result<int, string>.Failure("oops");
+
+        var bound = result.Bind(v => Result<string, string>.Success($"value:{v}"));
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo("oops");
+    }
+
+    [Test]
+    public async Task Bind_propagates_error_from_inner_result()
+    {
+        var result = Result<int, string>.Success(42);
+
+        var bound = result.Bind(_ => Result<string, string>.Failure("inner"));
+
+        await Assert.That(bound.IsFailure).IsTrue();
+        await Assert.That(bound.Error).IsEqualTo("inner");
+    }
+
+    [Test]
+    public async Task Bind_does_not_invoke_binder_on_failure()
+    {
+        var result = Result<int, string>.Failure("oops");
+        var invoked = false;
+
+        result.Bind(v =>
+        {
+            invoked = true;
+            return Result<string, string>.Success($"value:{v}");
+        });
+
+        await Assert.That(invoked).IsFalse();
+    }
 
     [Test]
     public async Task Successes_with_same_value_are_equal()
