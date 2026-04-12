@@ -96,6 +96,38 @@ public static class AsyncResultT2Extensions
                 ? Result<TOut, TError>.Success(mapper(result.Value))
                 : Result<TOut, TError>.Failure(result.Error);
         }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates the success value unchanged.
+        /// </summary>
+        /// <typeparam name="TOutError">The type of the new error.</typeparam>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public async Task<Result<TValue, TOutError>> MapErrorAsync<TOutError>(
+            Func<TError, Task<TOutError>> mapper)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? Result<TValue, TOutError>.Success(result.Value)
+                : Result<TValue, TOutError>.Failure(await mapper(result.Error).ConfigureAwait(false));
+        }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates the success value unchanged.
+        /// </summary>
+        /// <typeparam name="TOutError">The type of the new error.</typeparam>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public async Task<Result<TValue, TOutError>> MapErrorAsync<TOutError>(
+            Func<TError, TOutError> mapper)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? Result<TValue, TOutError>.Success(result.Value)
+                : Result<TValue, TOutError>.Failure(mapper(result.Error));
+        }
     }
 
     extension<TValue, TError>(Result<TValue, TError> source)
@@ -178,6 +210,36 @@ public static class AsyncResultT2Extensions
             var result = source.IsSuccess
                 ? Result<TOut, TError>.Success(mapper(source.Value))
                 : Result<TOut, TError>.Failure(source.Error);
+
+            return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates the success value unchanged.
+        /// </summary>
+        /// <typeparam name="TOutError">The type of the new error.</typeparam>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public async Task<Result<TValue, TOutError>> MapErrorAsync<TOutError>(
+            Func<TError, Task<TOutError>> mapper)
+        {
+            return source.IsSuccess
+                ? Result<TValue, TOutError>.Success(source.Value)
+                : Result<TValue, TOutError>.Failure(await mapper(source.Error).ConfigureAwait(false));
+        }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates the success value unchanged.
+        /// </summary>
+        /// <typeparam name="TOutError">The type of the new error.</typeparam>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public Task<Result<TValue, TOutError>> MapErrorAsync<TOutError>(
+            Func<TError, TOutError> mapper)
+        {
+            var result = source.IsSuccess
+                ? Result<TValue, TOutError>.Success(source.Value)
+                : Result<TValue, TOutError>.Failure(mapper(source.Error));
 
             return Task.FromResult(result);
         }

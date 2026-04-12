@@ -307,4 +307,100 @@ public class AsyncResultExtensionsTests
     }
 
     #endregion
+
+    #region MapErrorAsync — extension(Task<Result> source)
+
+    [Test]
+    public async Task MapErrorAsync_TaskSource_AsyncMapper_propagates_success_when_successful()
+    {
+        var resultTask = Task.FromResult(Result.Success());
+
+        var output = await resultTask.MapErrorAsync(e => Task.FromResult(Error.NotFound(e.Code, e.Message)));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task MapErrorAsync_TaskSource_AsyncMapper_transforms_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result.Failure(TestError));
+
+        var output = await resultTask.MapErrorAsync(e => Task.FromResult(Error.NotFound(e.Code, e.Message)));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error.Type).IsEqualTo(ErrorType.NotFound);
+        await Assert.That(output.Error.Code).IsEqualTo("oops");
+    }
+
+    [Test]
+    public async Task MapErrorAsync_TaskSource_SyncMapper_propagates_success_when_successful()
+    {
+        var resultTask = Task.FromResult(Result.Success());
+
+        var output = await resultTask.MapErrorAsync(e => Error.NotFound(e.Code, e.Message));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task MapErrorAsync_TaskSource_SyncMapper_transforms_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result.Failure(TestError));
+
+        var output = await resultTask.MapErrorAsync(e => Error.NotFound(e.Code, e.Message));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error.Type).IsEqualTo(ErrorType.NotFound);
+        await Assert.That(output.Error.Code).IsEqualTo("oops");
+    }
+
+    #endregion
+
+    #region MapErrorAsync — extension(Result source)
+
+    [Test]
+    public async Task MapErrorAsync_ResultSource_AsyncMapper_propagates_success_when_successful()
+    {
+        var result = Result.Success();
+
+        var output = await result.MapErrorAsync(e => Task.FromResult(Error.NotFound(e.Code, e.Message)));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task MapErrorAsync_ResultSource_AsyncMapper_transforms_error_when_failed()
+    {
+        var result = Result.Failure(TestError);
+
+        var output = await result.MapErrorAsync(e => Task.FromResult(Error.NotFound(e.Code, e.Message)));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error.Type).IsEqualTo(ErrorType.NotFound);
+        await Assert.That(output.Error.Code).IsEqualTo("oops");
+    }
+
+    [Test]
+    public async Task MapErrorAsync_ResultSource_SyncMapper_propagates_success_when_successful()
+    {
+        var result = Result.Success();
+
+        var output = await result.MapErrorAsync(e => Error.NotFound(e.Code, e.Message));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task MapErrorAsync_ResultSource_SyncMapper_transforms_error_when_failed()
+    {
+        var result = Result.Failure(TestError);
+
+        var output = await result.MapErrorAsync(e => Error.NotFound(e.Code, e.Message));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error.Type).IsEqualTo(ErrorType.NotFound);
+        await Assert.That(output.Error.Code).IsEqualTo("oops");
+    }
+
+    #endregion
 }

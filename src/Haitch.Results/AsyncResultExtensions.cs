@@ -96,6 +96,34 @@ public static class AsyncResultExtensions
                 ? Result<TOut>.Success(mapper())
                 : Result<TOut>.Failure(result.Error);
         }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates success unchanged.
+        /// </summary>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public async Task<Result> MapErrorAsync(Func<Error, Task<Error>> mapper)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? result
+                : Result.Failure(await mapper(result.Error).ConfigureAwait(false));
+        }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates success unchanged.
+        /// </summary>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public async Task<Result> MapErrorAsync(Func<Error, Error> mapper)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? result
+                : Result.Failure(mapper(result.Error));
+        }
     }
 
     extension(Result source)
@@ -178,6 +206,32 @@ public static class AsyncResultExtensions
             var result = source.IsSuccess
                 ? Result<TOut>.Success(mapper())
                 : Result<TOut>.Failure(source.Error);
+
+            return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates success unchanged.
+        /// </summary>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public async Task<Result> MapErrorAsync(Func<Error, Task<Error>> mapper)
+        {
+            return source.IsSuccess
+                ? source
+                : Result.Failure(await mapper(source.Error).ConfigureAwait(false));
+        }
+
+        /// <summary>
+        /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
+        /// otherwise propagates success unchanged.
+        /// </summary>
+        /// <param name="mapper">A function that transforms the error.</param>
+        public Task<Result> MapErrorAsync(Func<Error, Error> mapper)
+        {
+            var result = source.IsSuccess
+                ? source
+                : Result.Failure(mapper(source.Error));
 
             return Task.FromResult(result);
         }
