@@ -210,6 +210,34 @@ public static class AsyncResultExtensions
 
             return result;
         }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the error if this result is a failure,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the error.</param>
+        public async Task<Result> TapErrorAsync(Func<Error, Task> action)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            if (result.IsFailure) await action(result.Error).ConfigureAwait(false);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the error if this result is a failure,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the error.</param>
+        public async Task<Result> TapErrorAsync(Action<Error> action)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            if (result.IsFailure) action(result.Error);
+
+            return result;
+        }
     }
 
     extension(Result source)
@@ -396,6 +424,30 @@ public static class AsyncResultExtensions
         public Task<Result> TapAsync(Action action)
         {
             if (source.IsSuccess) action();
+
+            return Task.FromResult(source);
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the error if this result is a failure,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the error.</param>
+        public async Task<Result> TapErrorAsync(Func<Error, Task> action)
+        {
+            if (source.IsFailure) await action(source.Error).ConfigureAwait(false);
+
+            return source;
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the error if this result is a failure,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the error.</param>
+        public Task<Result> TapErrorAsync(Action<Error> action)
+        {
+            if (source.IsFailure) action(source.Error);
 
             return Task.FromResult(source);
         }

@@ -603,4 +603,108 @@ public class AsyncResultT2ExtensionsTests
     }
 
     #endregion
+
+    #region TapErrorAsync — extension(Task<Result<TValue, TError>> source)
+
+    [Test]
+    public async Task TapErrorAsync_TaskSource_AsyncAction_does_not_invoke_action_when_successful()
+    {
+        var resultTask = Task.FromResult(Result<int, Error>.Success(42));
+        var tapped = false;
+
+        var output = await resultTask.TapErrorAsync(e => { tapped = true; return Task.CompletedTask; });
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(tapped).IsFalse();
+    }
+
+    [Test]
+    public async Task TapErrorAsync_TaskSource_AsyncAction_invokes_action_when_failed()
+    {
+        var resultTask = Task.FromResult(Result<int, Error>.Failure(TestError));
+        Error? tappedError = null;
+
+        var output = await resultTask.TapErrorAsync(e => { tappedError = e; return Task.CompletedTask; });
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(tappedError).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task TapErrorAsync_TaskSource_SyncAction_does_not_invoke_action_when_successful()
+    {
+        var resultTask = Task.FromResult(Result<int, Error>.Success(42));
+        var tapped = false;
+
+        var output = await resultTask.TapErrorAsync(e => { tapped = true; });
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(tapped).IsFalse();
+    }
+
+    [Test]
+    public async Task TapErrorAsync_TaskSource_SyncAction_invokes_action_when_failed()
+    {
+        var resultTask = Task.FromResult(Result<int, Error>.Failure(TestError));
+        Error? tappedError = null;
+
+        var output = await resultTask.TapErrorAsync(e => { tappedError = e; });
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(tappedError).IsEqualTo(TestError);
+    }
+
+    #endregion
+
+    #region TapErrorAsync — extension(Result<TValue, TError> source)
+
+    [Test]
+    public async Task TapErrorAsync_ResultSource_AsyncAction_does_not_invoke_action_when_successful()
+    {
+        var result = Result<int, Error>.Success(42);
+        var tapped = false;
+
+        var output = await result.TapErrorAsync(e => { tapped = true; return Task.CompletedTask; });
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(tapped).IsFalse();
+    }
+
+    [Test]
+    public async Task TapErrorAsync_ResultSource_AsyncAction_invokes_action_when_failed()
+    {
+        var result = Result<int, Error>.Failure(TestError);
+        Error? tappedError = null;
+
+        var output = await result.TapErrorAsync(e => { tappedError = e; return Task.CompletedTask; });
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(tappedError).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task TapErrorAsync_ResultSource_SyncAction_does_not_invoke_action_when_successful()
+    {
+        var result = Result<int, Error>.Success(42);
+        var tapped = false;
+
+        var output = await result.TapErrorAsync(e => { tapped = true; });
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(tapped).IsFalse();
+    }
+
+    [Test]
+    public async Task TapErrorAsync_ResultSource_SyncAction_invokes_action_when_failed()
+    {
+        var result = Result<int, Error>.Failure(TestError);
+        Error? tappedError = null;
+
+        var output = await result.TapErrorAsync(e => { tappedError = e; });
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(tappedError).IsEqualTo(TestError);
+    }
+
+    #endregion
 }
