@@ -34,6 +34,7 @@ var displayName = GetUser(42)
 - Three result types: `Result`, `Result<TValue>`, `Result<TValue, TError>`
 - Structured `Error` records with categorized error types
 - Composable combinators: `Match`, `Map`, `MapError`, `Bind`, `Tap`, `TapError`, `Ensure`
+- Async combinators support
 - Implicit conversions
 - Source Link support
 
