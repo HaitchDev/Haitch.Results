@@ -403,4 +403,192 @@ public class AsyncResultExtensionsTests
     }
 
     #endregion
+
+    #region BindAsync (Result) — extension(Task<Result> source)
+
+    [Test]
+    public async Task BindAsync_TaskSource_AsyncBinder_returns_bound_result_when_successful()
+    {
+        var resultTask = Task.FromResult(Result.Success());
+
+        var output = await resultTask.BindAsync(() => Task.FromResult(Result.Success()));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task BindAsync_TaskSource_AsyncBinder_propagates_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result.Failure(TestError));
+
+        var output = await resultTask.BindAsync(() => Task.FromResult(Result.Success()));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task BindAsync_TaskSource_SyncBinder_returns_bound_result_when_successful()
+    {
+        var resultTask = Task.FromResult(Result.Success());
+
+        var output = await resultTask.BindAsync(() => Result.Success());
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task BindAsync_TaskSource_SyncBinder_propagates_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result.Failure(TestError));
+
+        var output = await resultTask.BindAsync(() => Result.Success());
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
+
+    #region BindAsync (Result<TOut>) — extension(Task<Result> source)
+
+    [Test]
+    public async Task BindAsyncT_TaskSource_AsyncBinder_returns_bound_value_when_successful()
+    {
+        var resultTask = Task.FromResult(Result.Success());
+
+        var output = await resultTask.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task BindAsyncT_TaskSource_AsyncBinder_propagates_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result.Failure(TestError));
+
+        var output = await resultTask.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task BindAsyncT_TaskSource_SyncBinder_returns_bound_value_when_successful()
+    {
+        var resultTask = Task.FromResult(Result.Success());
+
+        var output = await resultTask.BindAsync(() => Result<int>.Success(42));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task BindAsyncT_TaskSource_SyncBinder_propagates_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result.Failure(TestError));
+
+        var output = await resultTask.BindAsync(() => Result<int>.Success(42));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
+
+    #region BindAsync (Result) — extension(Result source)
+
+    [Test]
+    public async Task BindAsync_ResultSource_AsyncBinder_returns_bound_result_when_successful()
+    {
+        var result = Result.Success();
+
+        var output = await result.BindAsync(() => Task.FromResult(Result.Success()));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task BindAsync_ResultSource_AsyncBinder_propagates_error_when_failed()
+    {
+        var result = Result.Failure(TestError);
+
+        var output = await result.BindAsync(() => Task.FromResult(Result.Success()));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task BindAsync_ResultSource_SyncBinder_returns_bound_result_when_successful()
+    {
+        var result = Result.Success();
+
+        var output = await result.BindAsync(() => Result.Success());
+
+        await Assert.That(output.IsSuccess).IsTrue();
+    }
+
+    [Test]
+    public async Task BindAsync_ResultSource_SyncBinder_propagates_error_when_failed()
+    {
+        var result = Result.Failure(TestError);
+
+        var output = await result.BindAsync(() => Result.Success());
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
+
+    #region BindAsync (Result<TOut>) — extension(Result source)
+
+    [Test]
+    public async Task BindAsyncT_ResultSource_AsyncBinder_returns_bound_value_when_successful()
+    {
+        var result = Result.Success();
+
+        var output = await result.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task BindAsyncT_ResultSource_AsyncBinder_propagates_error_when_failed()
+    {
+        var result = Result.Failure(TestError);
+
+        var output = await result.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task BindAsyncT_ResultSource_SyncBinder_returns_bound_value_when_successful()
+    {
+        var result = Result.Success();
+
+        var output = await result.BindAsync(() => Result<int>.Success(42));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task BindAsyncT_ResultSource_SyncBinder_propagates_error_when_failed()
+    {
+        var result = Result.Failure(TestError);
+
+        var output = await result.BindAsync(() => Result<int>.Success(42));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
 }

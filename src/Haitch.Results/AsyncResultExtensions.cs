@@ -124,6 +124,64 @@ public static class AsyncResultExtensions
                 ? result
                 : Result.Failure(mapper(result.Error));
         }
+
+        /// <summary>
+        /// Chains a result-returning operation if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <param name="binder">A function that produces the next result.</param>
+        public async Task<Result> BindAsync(Func<Task<Result>> binder)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? await binder().ConfigureAwait(false)
+                : result;
+        }
+
+        /// <summary>
+        /// Chains a result-returning operation if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <param name="binder">A function that produces the next result.</param>
+        public async Task<Result> BindAsync(Func<Result> binder)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? binder()
+                : result;
+        }
+
+        /// <summary>
+        /// Chains a result-returning operation that produces a value if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <typeparam name="TOut">The type of the value produced on success.</typeparam>
+        /// <param name="binder">A function that produces the next result.</param>
+        public async Task<Result<TOut>> BindAsync<TOut>(Func<Task<Result<TOut>>> binder)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? await binder().ConfigureAwait(false)
+                : Result<TOut>.Failure(result.Error);
+        }
+
+        /// <summary>
+        /// Chains a result-returning operation that produces a value if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <typeparam name="TOut">The type of the value produced on success.</typeparam>
+        /// <param name="binder">A function that produces the next result.</param>
+        public async Task<Result<TOut>> BindAsync<TOut>(Func<Result<TOut>> binder)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess
+                ? binder()
+                : Result<TOut>.Failure(result.Error);
+        }
     }
 
     extension(Result source)
@@ -232,6 +290,60 @@ public static class AsyncResultExtensions
             var result = source.IsSuccess
                 ? source
                 : Result.Failure(mapper(source.Error));
+
+            return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Chains a result-returning operation if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <param name="binder">A function that produces the next result.</param>
+        public async Task<Result> BindAsync(Func<Task<Result>> binder)
+        {
+            return source.IsSuccess
+                ? await binder().ConfigureAwait(false)
+                : source;
+        }
+
+        /// <summary>
+        /// Chains a result-returning operation if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <param name="binder">A function that produces the next result.</param>
+        public Task<Result> BindAsync(Func<Result> binder)
+        {
+            var result = source.IsSuccess
+                ? binder()
+                : source;
+
+            return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Chains a result-returning operation that produces a value if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <typeparam name="TOut">The type of the value produced on success.</typeparam>
+        /// <param name="binder">A function that produces the next result.</param>
+        public async Task<Result<TOut>> BindAsync<TOut>(Func<Task<Result<TOut>>> binder)
+        {
+            return source.IsSuccess
+                ? await binder().ConfigureAwait(false)
+                : Result<TOut>.Failure(source.Error);
+        }
+
+        /// <summary>
+        /// Chains a result-returning operation that produces a value if this result is successful;
+        /// otherwise propagates the existing error unchanged.
+        /// </summary>
+        /// <typeparam name="TOut">The type of the value produced on success.</typeparam>
+        /// <param name="binder">A function that produces the next result.</param>
+        public Task<Result<TOut>> BindAsync<TOut>(Func<Result<TOut>> binder)
+        {
+            var result = source.IsSuccess
+                ? binder()
+                : Result<TOut>.Failure(source.Error);
 
             return Task.FromResult(result);
         }
