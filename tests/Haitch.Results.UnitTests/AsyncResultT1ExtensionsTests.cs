@@ -211,4 +211,100 @@ public class AsyncResultT1ExtensionsTests
     }
 
     #endregion
+
+    #region MapAsync — extension(Task<Result<TValue>> source)
+
+    [Test]
+    public async Task MapAsync_TaskSource_AsyncMapper_returns_mapped_value_when_successful()
+    {
+        var resultTask = Task.FromResult(Result<int>.Success(42));
+
+        var output = await resultTask.MapAsync(v => Task.FromResult($"value:{v}"));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo("value:42");
+    }
+
+    [Test]
+    public async Task MapAsync_TaskSource_AsyncMapper_propagates_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result<int>.Failure(TestError));
+
+        var output = await resultTask.MapAsync(v => Task.FromResult($"value:{v}"));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task MapAsync_TaskSource_SyncMapper_returns_mapped_value_when_successful()
+    {
+        var resultTask = Task.FromResult(Result<int>.Success(42));
+
+        var output = await resultTask.MapAsync(v => $"value:{v}");
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo("value:42");
+    }
+
+    [Test]
+    public async Task MapAsync_TaskSource_SyncMapper_propagates_error_when_failed()
+    {
+        var resultTask = Task.FromResult(Result<int>.Failure(TestError));
+
+        var output = await resultTask.MapAsync(v => $"value:{v}");
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
+
+    #region MapAsync — extension(Result<TValue> source)
+
+    [Test]
+    public async Task MapAsync_ResultSource_AsyncMapper_returns_mapped_value_when_successful()
+    {
+        var result = Result<int>.Success(42);
+
+        var output = await result.MapAsync(v => Task.FromResult($"value:{v}"));
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo("value:42");
+    }
+
+    [Test]
+    public async Task MapAsync_ResultSource_AsyncMapper_propagates_error_when_failed()
+    {
+        var result = Result<int>.Failure(TestError);
+
+        var output = await result.MapAsync(v => Task.FromResult($"value:{v}"));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task MapAsync_ResultSource_SyncMapper_returns_mapped_value_when_successful()
+    {
+        var result = Result<int>.Success(42);
+
+        var output = await result.MapAsync(v => $"value:{v}");
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo("value:42");
+    }
+
+    [Test]
+    public async Task MapAsync_ResultSource_SyncMapper_propagates_error_when_failed()
+    {
+        var result = Result<int>.Failure(TestError);
+
+        var output = await result.MapAsync(v => $"value:{v}");
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
 }
