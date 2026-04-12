@@ -154,6 +154,34 @@ public static class AsyncResultT1Extensions
                 ? binder(result.Value)
                 : Result<TOut>.Failure(result.Error);
         }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the success value if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the success value.</param>
+        public async Task<Result<TValue>> TapAsync(Func<TValue, Task> action)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            if (result.IsSuccess) await action(result.Value).ConfigureAwait(false);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the success value if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the success value.</param>
+        public async Task<Result<TValue>> TapAsync(Action<TValue> action)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            if (result.IsSuccess) action(result.Value);
+
+            return result;
+        }
     }
 
     extension<TValue>(Result<TValue> source)
@@ -292,6 +320,30 @@ public static class AsyncResultT1Extensions
                 : Result<TOut>.Failure(source.Error);
 
             return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the success value if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the success value.</param>
+        public async Task<Result<TValue>> TapAsync(Func<TValue, Task> action)
+        {
+            if (source.IsSuccess) await action(source.Value).ConfigureAwait(false);
+
+            return source;
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> on the success value if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on the success value.</param>
+        public Task<Result<TValue>> TapAsync(Action<TValue> action)
+        {
+            if (source.IsSuccess) action(source.Value);
+
+            return Task.FromResult(source);
         }
     }
 }

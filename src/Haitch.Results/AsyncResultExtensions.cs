@@ -182,6 +182,34 @@ public static class AsyncResultExtensions
                 ? binder()
                 : Result<TOut>.Failure(result.Error);
         }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on success.</param>
+        public async Task<Result> TapAsync(Func<Task> action)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            if (result.IsSuccess) await action().ConfigureAwait(false);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on success.</param>
+        public async Task<Result> TapAsync(Action action)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            if (result.IsSuccess) action();
+
+            return result;
+        }
     }
 
     extension(Result source)
@@ -346,6 +374,30 @@ public static class AsyncResultExtensions
                 : Result<TOut>.Failure(source.Error);
 
             return Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on success.</param>
+        public async Task<Result> TapAsync(Func<Task> action)
+        {
+            if (source.IsSuccess) await action().ConfigureAwait(false);
+
+            return source;
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="action"/> if this result is successful,
+        /// then returns the result unchanged.
+        /// </summary>
+        /// <param name="action">A side-effecting action to perform on success.</param>
+        public Task<Result> TapAsync(Action action)
+        {
+            if (source.IsSuccess) action();
+
+            return Task.FromResult(source);
         }
     }
 }
