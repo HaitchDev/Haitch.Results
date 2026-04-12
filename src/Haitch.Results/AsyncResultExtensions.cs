@@ -192,7 +192,10 @@ public static class AsyncResultExtensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsSuccess) await action().ConfigureAwait(false);
+            if (result.IsSuccess)
+            {
+                await action().ConfigureAwait(false);
+            }
 
             return result;
         }
@@ -206,7 +209,10 @@ public static class AsyncResultExtensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsSuccess) action();
+            if (result.IsSuccess)
+            {
+                action();
+            }
 
             return result;
         }
@@ -220,7 +226,10 @@ public static class AsyncResultExtensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsFailure) await action(result.Error).ConfigureAwait(false);
+            if (result.IsFailure)
+            {
+                await action(result.Error).ConfigureAwait(false);
+            }
 
             return result;
         }
@@ -234,7 +243,10 @@ public static class AsyncResultExtensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsFailure) action(result.Error);
+            if (result.IsFailure)
+            {
+                action(result.Error);
+            }
 
             return result;
         }
@@ -441,7 +453,10 @@ public static class AsyncResultExtensions
         /// <param name="action">A side-effecting action to perform on success.</param>
         public async Task<Result> TapAsync(Func<Task> action)
         {
-            if (source.IsSuccess) await action().ConfigureAwait(false);
+            if (source.IsSuccess)
+            {
+                await action().ConfigureAwait(false);
+            }
 
             return source;
         }
@@ -453,7 +468,10 @@ public static class AsyncResultExtensions
         /// <param name="action">A side-effecting action to perform on success.</param>
         public Task<Result> TapAsync(Action action)
         {
-            if (source.IsSuccess) action();
+            if (source.IsSuccess)
+            {
+                action();
+            }
 
             return Task.FromResult(source);
         }
@@ -465,7 +483,10 @@ public static class AsyncResultExtensions
         /// <param name="action">A side-effecting action to perform on the error.</param>
         public async Task<Result> TapErrorAsync(Func<Error, Task> action)
         {
-            if (source.IsFailure) await action(source.Error).ConfigureAwait(false);
+            if (source.IsFailure)
+            {
+                await action(source.Error).ConfigureAwait(false);
+            }
 
             return source;
         }
@@ -477,7 +498,10 @@ public static class AsyncResultExtensions
         /// <param name="action">A side-effecting action to perform on the error.</param>
         public Task<Result> TapErrorAsync(Action<Error> action)
         {
-            if (source.IsFailure) action(source.Error);
+            if (source.IsFailure)
+            {
+                action(source.Error);
+            }
 
             return Task.FromResult(source);
         }

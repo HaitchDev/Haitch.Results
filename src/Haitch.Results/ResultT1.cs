@@ -37,7 +37,7 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     /// The failure error. Throws <see cref="InvalidOperationException"/> if the result is a success.
     /// </summary>
     public Error Error => IsFailure
-        ? _error!
+        ? _error.Value
         : throw new InvalidOperationException("Cannot access Error on a successful result.");
 
     private Result(TValue value)
@@ -79,7 +79,7 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     /// and returns the result of the invoked delegate.
     /// </summary>
     public TOut Match<TOut>(Func<TValue, TOut> onSuccess, Func<Error, TOut> onFailure)
-        => IsSuccess ? onSuccess(_value!) : onFailure(_error!);
+        => IsSuccess ? onSuccess(_value!) : onFailure(_error.Value);
     
     /// <summary>
     /// Transforms the success value using <paramref name="mapper"/> if the result is successful;
@@ -90,7 +90,7 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     public Result<TOut> Map<TOut>(Func<TValue, TOut> mapper)
         => IsSuccess
             ? Result<TOut>.Success(mapper(_value!))
-            : Result<TOut>.Failure(_error!);
+            : Result<TOut>.Failure(_error.Value);
 
     /// <summary>
     /// Transforms the error using <paramref name="mapper"/> if this result is a failure;
@@ -100,7 +100,7 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     public Result<TValue> MapError(Func<Error, Error> mapper)
         => IsSuccess
             ? this
-            : Failure(mapper(_error!));
+            : Failure(mapper(_error.Value));
     
     /// <summary>
     /// Chains a result-returning operation if this result is successful;
@@ -111,7 +111,7 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     public Result<TOut> Bind<TOut>(Func<TValue, Result<TOut>> binder)
         => IsSuccess
             ? binder(_value!)
-            : Result<TOut>.Failure(_error!);
+            : Result<TOut>.Failure(_error.Value);
 
     /// <summary>
     /// Invokes <paramref name="action"/> on the success value if this result is successful,
@@ -120,7 +120,11 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     /// <param name="action">A side-effecting action to perform on the success value.</param>
     public Result<TValue> Tap(Action<TValue> action)
     {
-        if (IsSuccess) action(_value!);
+        if (IsSuccess)
+        {
+            action(_value!);
+        }
+
         return this;
     }
 
@@ -131,7 +135,11 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     /// <param name="action">A side-effecting action to perform on the error.</param>
     public Result<TValue> TapError(Action<Error> action)
     {
-        if (IsFailure) action(_error!);
+        if (IsFailure)
+        {
+            action(_error.Value);
+        }
+
         return this;
     }
 
@@ -193,8 +201,8 @@ public readonly struct Result<TValue> : IEquatable<Result<TValue>>
     /// <summary>
     /// Creates a failed result with an <see cref="ErrorType.Validation"/> error.
     /// </summary>
-    public static Result<TValue> Validation(string code, string message)
-        => new(Error.Validation(code, message));
+    public static Result<TValue> Validation(string code, string message, Error[] childErrors)
+        => new(Error.Validation(code, message, childErrors));
 
     /// <summary>
     /// Creates a failed result with a <see cref="ErrorType.NotFound"/> error.

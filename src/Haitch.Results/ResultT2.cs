@@ -122,7 +122,11 @@ public readonly struct Result<TValue, TError> : IEquatable<Result<TValue, TError
     /// <param name="action">A side-effecting action to perform on the success value.</param>
     public Result<TValue, TError> Tap(Action<TValue> action)
     {
-        if (IsSuccess) action(_value!);
+        if (IsSuccess)
+        {
+            action(_value!);
+        }
+
         return this;
     }
 
@@ -133,7 +137,11 @@ public readonly struct Result<TValue, TError> : IEquatable<Result<TValue, TError
     /// <param name="action">A side-effecting action to perform on the error.</param>
     public Result<TValue, TError> TapError(Action<TError> action)
     {
-        if (IsFailure) action(_error!);
+        if (IsFailure)
+        {
+            action(_error!);
+        }
+
         return this;
     }
 

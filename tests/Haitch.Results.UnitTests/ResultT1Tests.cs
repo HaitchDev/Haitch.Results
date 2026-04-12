@@ -130,11 +130,11 @@ public class ResultT1Tests
         var original = Error.NotFound("user.not_found", "User not found");
         var result = Result<int>.Failure(original);
 
-        var mapped = result.MapError(e => Error.Validation("validation." + e.Code, e.Message));
+        var mapped = result.MapError(e => Error.Failure("validation." + e.Code, e.Message));
 
         await Assert.That(mapped.IsFailure).IsTrue();
         await Assert.That(mapped.Error.Code).IsEqualTo("validation.user.not_found");
-        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Validation);
+        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Failure);
     }
 
     [Test]
@@ -142,7 +142,7 @@ public class ResultT1Tests
     {
         var result = Result<int>.Success(42);
 
-        var mapped = result.MapError(_ => Error.Validation("x", "x"));
+        var mapped = result.MapError(_ => Error.Failure("x", "x"));
 
         await Assert.That(mapped.IsSuccess).IsTrue();
         await Assert.That(mapped.Value).IsEqualTo(42);
@@ -185,7 +185,7 @@ public class ResultT1Tests
     [Test]
     public async Task Bind_propagates_error_from_inner_result()
     {
-        var innerError = Error.Validation("invalid", "Invalid value");
+        var innerError = Error.Failure("invalid", "Invalid value");
         var result = Result<int>.Success(42);
 
         var bound = result.Bind(_ => Result<string>.Failure(innerError));
@@ -262,7 +262,7 @@ public class ResultT1Tests
     public async Task Ensure_returns_original_result_when_predicate_passes()
     {
         var result = Result<int>.Success(42);
-        var error = Error.Validation("invalid", "Value must be positive");
+        var error = Error.Failure("invalid", "Value must be positive");
 
         var ensured = result.Ensure(v => v > 0, error);
 
@@ -273,7 +273,7 @@ public class ResultT1Tests
     public async Task Ensure_returns_failure_when_predicate_fails()
     {
         var result = Result<int>.Success(-1);
-        var error = Error.Validation("invalid", "Value must be positive");
+        var error = Error.Failure("invalid", "Value must be positive");
 
         var ensured = result.Ensure(v => v > 0, error);
 
@@ -287,7 +287,7 @@ public class ResultT1Tests
         var result = Result<int>.Failure(Error.Failure("oops", "Something went wrong"));
         var invoked = false;
 
-        result.Ensure(_ => { invoked = true; return true; }, Error.Validation("x", "x"));
+        result.Ensure(_ => { invoked = true; return true; }, Error.Failure("x", "x"));
 
         await Assert.That(invoked).IsFalse();
     }
@@ -297,7 +297,7 @@ public class ResultT1Tests
     {
         var originalError = Error.NotFound("user.not_found", "User not found");
         var result = Result<int>.Failure(originalError);
-        var ensureError = Error.Validation("invalid", "Value must be positive");
+        var ensureError = Error.Failure("invalid", "Value must be positive");
 
         var ensured = result.Ensure(v => v > 0, ensureError);
 
@@ -366,15 +366,36 @@ public class ResultT1Tests
     public async Task Convenience_factories_create_failure_with_expected_error_type(
         string factoryName, ErrorType expectedType)
     {
-        var factory = typeof(Result<int>).GetMethod(
-            factoryName,
-            [typeof(string), typeof(string)])!;
-        var result = (Result<int>)factory.Invoke(null, ["code", "message"])!;
+        Result<int> result;
+
+        if (expectedType == ErrorType.Validation)
+        {
+            var factory = typeof(Result<int>).GetMethod(
+                factoryName,
+                [typeof(string), typeof(string), typeof(Error[])])!;
+            result = (Result<int>)factory.Invoke(null, ["code", "message", new[]{Error.Failure("sub", "field")}])!;
+        }
+        else
+        {
+            var factory = typeof(Result<int>).GetMethod(
+                factoryName,
+                [typeof(string), typeof(string)])!;
+            result = (Result<int>)factory.Invoke(null, ["code", "message"])!;
+        }
 
         await Assert.That(result.IsFailure).IsTrue();
         await Assert.That(result.Error.Code).IsEqualTo("code");
         await Assert.That(result.Error.Message).IsEqualTo("message");
         await Assert.That(result.Error.Type).IsEqualTo(expectedType);
+
+        if (expectedType == ErrorType.Validation)
+        {
+            await Assert.That(result.Error.ChildErrors).IsEquivalentTo([Error.Failure("sub", "field")]);
+        }
+        else
+        {
+            await Assert.That(result.Error.ChildErrors).IsNull();
+        }
     }
 
     private sealed record User(string Name);

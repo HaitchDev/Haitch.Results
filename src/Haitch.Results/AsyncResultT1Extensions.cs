@@ -164,7 +164,10 @@ public static class AsyncResultT1Extensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsSuccess) await action(result.Value).ConfigureAwait(false);
+            if (result.IsSuccess)
+            {
+                await action(result.Value).ConfigureAwait(false);
+            }
 
             return result;
         }
@@ -178,7 +181,10 @@ public static class AsyncResultT1Extensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsSuccess) action(result.Value);
+            if (result.IsSuccess)
+            {
+                action(result.Value);
+            }
 
             return result;
         }
@@ -192,7 +198,10 @@ public static class AsyncResultT1Extensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsFailure) await action(result.Error).ConfigureAwait(false);
+            if (result.IsFailure)
+            {
+                await action(result.Error).ConfigureAwait(false);
+            }
 
             return result;
         }
@@ -206,7 +215,10 @@ public static class AsyncResultT1Extensions
         {
             var result = await source.ConfigureAwait(false);
 
-            if (result.IsFailure) action(result.Error);
+            if (result.IsFailure)
+            {
+                action(result.Error);
+            }
 
             return result;
         }
@@ -387,7 +399,10 @@ public static class AsyncResultT1Extensions
         /// <param name="action">A side-effecting action to perform on the success value.</param>
         public async Task<Result<TValue>> TapAsync(Func<TValue, Task> action)
         {
-            if (source.IsSuccess) await action(source.Value).ConfigureAwait(false);
+            if (source.IsSuccess)
+            {
+                await action(source.Value).ConfigureAwait(false);
+            }
 
             return source;
         }
@@ -399,7 +414,10 @@ public static class AsyncResultT1Extensions
         /// <param name="action">A side-effecting action to perform on the success value.</param>
         public Task<Result<TValue>> TapAsync(Action<TValue> action)
         {
-            if (source.IsSuccess) action(source.Value);
+            if (source.IsSuccess)
+            {
+                action(source.Value);
+            }
 
             return Task.FromResult(source);
         }
@@ -411,7 +429,10 @@ public static class AsyncResultT1Extensions
         /// <param name="action">A side-effecting action to perform on the error.</param>
         public async Task<Result<TValue>> TapErrorAsync(Func<Error, Task> action)
         {
-            if (source.IsFailure) await action(source.Error).ConfigureAwait(false);
+            if (source.IsFailure)
+            {
+                await action(source.Error).ConfigureAwait(false);
+            }
 
             return source;
         }
@@ -423,7 +444,10 @@ public static class AsyncResultT1Extensions
         /// <param name="action">A side-effecting action to perform on the error.</param>
         public Task<Result<TValue>> TapErrorAsync(Action<Error> action)
         {
-            if (source.IsFailure) action(source.Error);
+            if (source.IsFailure)
+            {
+                action(source.Error);
+            }
 
             return Task.FromResult(source);
         }

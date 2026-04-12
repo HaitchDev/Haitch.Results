@@ -137,12 +137,12 @@ public class ResultT2Tests
     {
         var result = Result<int, string>.Failure("oops");
 
-        var mapped = result.MapError(e => Error.Validation("err", e));
+        var mapped = result.MapError(e => Error.Failure("err", e));
 
         await Assert.That(mapped.IsFailure).IsTrue();
         await Assert.That(mapped.Error.Code).IsEqualTo("err");
         await Assert.That(mapped.Error.Message).IsEqualTo("oops");
-        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Validation);
+        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Failure);
     }
 
     [Test]

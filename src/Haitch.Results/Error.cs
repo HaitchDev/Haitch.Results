@@ -7,8 +7,14 @@ namespace Haitch.Results;
 /// <param name="Code">A short, stable identifier for this error (e.g. <c>"user.not_found"</c>).</param>
 /// <param name="Message">A human-readable description of what went wrong.</param>
 /// <param name="Type">The category of error. Defaults to <see cref="ErrorType.Failure"/>.</param>
-public record Error(string Code, string Message, ErrorType Type = ErrorType.Failure)
+public readonly record struct Error(string Code, string Message, ErrorType Type = ErrorType.Failure)
 {
+    /// <summary>
+    /// Optional field holding all the child errors occurred along with the error.
+    /// This effectively makes this <see cref="Error"/> object an aggregate of errors.
+    /// </summary>
+    public Error[]? ChildErrors { get; init; }
+    
     /// <summary>
     /// Optional contextual data attached to the error, such as the offending field name
     /// on a validation error or the resource identifier on a not-found error.
@@ -30,8 +36,9 @@ public record Error(string Code, string Message, ErrorType Type = ErrorType.Fail
     /// </summary>
     /// <param name="code">A short, stable identifier for this error.</param>
     /// <param name="message">A human-readable description of what went wrong.</param>
-    public static Error Validation(string code, string message)
-        => new(code, message, ErrorType.Validation);
+    /// <param name="childErrors">the child errors that have ocurred.</param>
+    public static Error Validation(string code, string message, Error[] childErrors)
+        => new(code, message, ErrorType.Validation) { ChildErrors =  childErrors };
 
     /// <summary>
     /// Creates an <see cref="Error"/> representing a missing resource,
@@ -78,4 +85,91 @@ public record Error(string Code, string Message, ErrorType Type = ErrorType.Fail
     /// <param name="message">A human-readable description of what went wrong.</param>
     public static Error Unexpected(string code, string message)
         => new(code, message, ErrorType.Unexpected);
+    
+    /// <inheritdoc/>
+    public bool Equals(Error other)
+    {
+        if (Code != other.Code || Message != other.Message || Type != other.Type)
+        {
+            return false;
+        }
+
+        return ArraysEqual(ChildErrors, other.ChildErrors) &&
+               DictionariesEqual(Metadata, other.Metadata);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Code);
+        hash.Add(Message);
+        hash.Add(Type);
+        
+        if (ChildErrors is not null)
+        {
+            foreach (var error in ChildErrors)
+            {
+                hash.Add(error);
+            }
+        }
+
+        if (Metadata is null)
+        {
+            return hash.ToHashCode();
+        }
+
+        foreach (var kvp in Metadata)
+        {
+            hash.Add(kvp.Key);
+            hash.Add(kvp.Value);
+        }
+
+        return hash.ToHashCode();
+    }
+    
+    private static bool ArraysEqual(Error[]? a, Error[]? b)
+    {
+        if (a is null && b is null)
+        {
+            return true;
+        }
+
+        if (a is null || b is null)
+        {
+            return false;
+        }
+
+        return a.SequenceEqual(b);
+    }
+
+    private static bool DictionariesEqual(
+        IReadOnlyDictionary<string, object?>? a,
+        IReadOnlyDictionary<string, object?>? b)
+    {
+        if (a is null && b is null)
+        {
+            return true;
+        }
+
+        if (a is null || b is null)
+        {
+            return false;
+        }
+
+        if (a.Count != b.Count)
+        {
+            return false;
+        }
+
+        foreach (var kvp in a)
+        {
+            if (!b.TryGetValue(kvp.Key, out var value) || !Equals(kvp.Value, value))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

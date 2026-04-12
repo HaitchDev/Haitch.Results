@@ -116,11 +116,11 @@ public class ResultTests
         var original = Error.NotFound("user.not_found", "User not found");
         var result = Result.Failure(original);
 
-        var mapped = result.MapError(e => Error.Validation("validation." + e.Code, e.Message));
+        var mapped = result.MapError(e => Error.Failure("validation." + e.Code, e.Message));
 
         await Assert.That(mapped.IsFailure).IsTrue();
         await Assert.That(mapped.Error.Code).IsEqualTo("validation.user.not_found");
-        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Validation);
+        await Assert.That(mapped.Error.Type).IsEqualTo(ErrorType.Failure);
     }
 
     [Test]
@@ -128,7 +128,7 @@ public class ResultTests
     {
         var result = Result.Success();
 
-        var mapped = result.MapError(_ => Error.Validation("x", "x"));
+        var mapped = result.MapError(_ => Error.Failure("x", "x"));
 
         await Assert.That(mapped.IsSuccess).IsTrue();
     }
@@ -179,7 +179,7 @@ public class ResultTests
     [Test]
     public async Task Bind_to_void_result_propagates_error_from_inner_result()
     {
-        var innerError = Error.Validation("invalid", "Invalid value");
+        var innerError = Error.Failure("invalid", "Invalid value");
         var result = Result.Success();
 
         var bound = result.Bind(() => Result.Failure(innerError));
@@ -229,7 +229,7 @@ public class ResultTests
     [Test]
     public async Task Bind_to_value_result_propagates_error_from_inner_result()
     {
-        var innerError = Error.Validation("invalid", "Invalid value");
+        var innerError = Error.Failure("invalid", "Invalid value");
         var result = Result.Success();
 
         var bound = result.Bind(() => Result<int>.Failure(innerError));
@@ -306,7 +306,7 @@ public class ResultTests
     public async Task Ensure_returns_original_result_when_predicate_passes()
     {
         var result = Result.Success();
-        var error = Error.Validation("invalid", "Precondition failed");
+        var error = Error.Failure("invalid", "Precondition failed");
 
         var ensured = result.Ensure(() => true, error);
 
@@ -317,7 +317,7 @@ public class ResultTests
     public async Task Ensure_returns_failure_when_predicate_fails()
     {
         var result = Result.Success();
-        var error = Error.Validation("invalid", "Precondition failed");
+        var error = Error.Failure("invalid", "Precondition failed");
 
         var ensured = result.Ensure(() => false, error);
 
@@ -331,7 +331,7 @@ public class ResultTests
         var result = Result.Failure(Error.Failure("oops", "Something went wrong"));
         var invoked = false;
 
-        result.Ensure(() => { invoked = true; return true; }, Error.Validation("x", "x"));
+        result.Ensure(() => { invoked = true; return true; }, Error.Failure("x", "x"));
 
         await Assert.That(invoked).IsFalse();
     }
@@ -341,7 +341,7 @@ public class ResultTests
     {
         var originalError = Error.NotFound("user.not_found", "User not found");
         var result = Result.Failure(originalError);
-        var ensureError = Error.Validation("invalid", "Precondition failed");
+        var ensureError = Error.Failure("invalid", "Precondition failed");
 
         var ensured = result.Ensure(() => false, ensureError);
 
@@ -390,14 +390,35 @@ public class ResultTests
     public async Task Convenience_factories_create_failure_with_expected_error_type(
         string factoryName, ErrorType expectedType)
     {
-        var factory = typeof(Result).GetMethod(
-            factoryName,
-            [typeof(string), typeof(string)])!;
-        var result = (Result)factory.Invoke(null, ["code", "message"])!;
+        Result result;
+
+        if (expectedType == ErrorType.Validation)
+        {
+            var factory = typeof(Result).GetMethod(
+                factoryName,
+                [typeof(string), typeof(string), typeof(Error[])])!;
+            result = (Result)factory.Invoke(null, ["code", "message", new[]{Error.Failure("sub", "field")}])!;
+        }
+        else
+        {
+            var factory = typeof(Result).GetMethod(
+                factoryName,
+                [typeof(string), typeof(string)])!;
+            result = (Result)factory.Invoke(null, ["code", "message"])!;
+        }
 
         await Assert.That(result.IsFailure).IsTrue();
         await Assert.That(result.Error.Code).IsEqualTo("code");
         await Assert.That(result.Error.Message).IsEqualTo("message");
         await Assert.That(result.Error.Type).IsEqualTo(expectedType);
+        
+        if (expectedType == ErrorType.Validation)
+        {
+            await Assert.That(result.Error.ChildErrors).IsEquivalentTo([Error.Failure("sub", "field")]);
+        }
+        else
+        {
+            await Assert.That(result.Error.ChildErrors).IsNull();
+        }
     }
 }
