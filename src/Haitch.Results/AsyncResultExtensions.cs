@@ -238,6 +238,36 @@ public static class AsyncResultExtensions
 
             return result;
         }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated when the result is successful.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public async Task<Result> EnsureAsync(Func<Task<bool>> predicate, Error error)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess && !await predicate().ConfigureAwait(false)
+                ? Result.Failure(error)
+                : result;
+        }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated when the result is successful.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public async Task<Result> EnsureAsync(Func<bool> predicate, Error error)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess && !predicate()
+                ? Result.Failure(error)
+                : result;
+        }
     }
 
     extension(Result source)
@@ -450,6 +480,34 @@ public static class AsyncResultExtensions
             if (source.IsFailure) action(source.Error);
 
             return Task.FromResult(source);
+        }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated when the result is successful.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public async Task<Result> EnsureAsync(Func<Task<bool>> predicate, Error error)
+        {
+            return source.IsSuccess && !await predicate().ConfigureAwait(false)
+                ? Result.Failure(error)
+                : source;
+        }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated when the result is successful.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public Task<Result> EnsureAsync(Func<bool> predicate, Error error)
+        {
+            var result = source.IsSuccess && !predicate()
+                ? Result.Failure(error)
+                : source;
+
+            return Task.FromResult(result);
         }
     }
 }

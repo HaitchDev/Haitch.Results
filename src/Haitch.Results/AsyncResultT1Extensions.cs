@@ -210,6 +210,36 @@ public static class AsyncResultT1Extensions
 
             return result;
         }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated against the success value.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public async Task<Result<TValue>> EnsureAsync(Func<TValue, Task<bool>> predicate, Error error)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess && !await predicate(result.Value).ConfigureAwait(false)
+                ? Result<TValue>.Failure(error)
+                : result;
+        }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated against the success value.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public async Task<Result<TValue>> EnsureAsync(Func<TValue, bool> predicate, Error error)
+        {
+            var result = await source.ConfigureAwait(false);
+
+            return result.IsSuccess && !predicate(result.Value)
+                ? Result<TValue>.Failure(error)
+                : result;
+        }
     }
 
     extension<TValue>(Result<TValue> source)
@@ -222,7 +252,7 @@ public static class AsyncResultT1Extensions
             Func<TValue, Task<TOut>> onSuccess,
             Func<Error, Task<TOut>> onFailure)
         {
-            return source.IsSuccess 
+            return source.IsSuccess
                 ? await onSuccess(source.Value).ConfigureAwait(false)
                 : await onFailure(source.Error).ConfigureAwait(false);
         }
@@ -396,6 +426,34 @@ public static class AsyncResultT1Extensions
             if (source.IsFailure) action(source.Error);
 
             return Task.FromResult(source);
+        }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated against the success value.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public async Task<Result<TValue>> EnsureAsync(Func<TValue, Task<bool>> predicate, Error error)
+        {
+            return source.IsSuccess && !await predicate(source.Value).ConfigureAwait(false)
+                ? Result<TValue>.Failure(error)
+                : source;
+        }
+
+        /// <summary>
+        /// Converts a successful result into a failure if <paramref name="predicate"/> returns
+        /// <see langword="false"/>; otherwise returns the result unchanged.
+        /// </summary>
+        /// <param name="predicate">A predicate evaluated against the success value.</param>
+        /// <param name="error">The error to use if the predicate fails.</param>
+        public Task<Result<TValue>> EnsureAsync(Func<TValue, bool> predicate, Error error)
+        {
+            var result = source.IsSuccess && !predicate(source.Value)
+                ? Result<TValue>.Failure(error)
+                : source;
+
+            return Task.FromResult(result);
         }
     }
 }

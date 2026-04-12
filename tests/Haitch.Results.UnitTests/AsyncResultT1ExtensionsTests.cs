@@ -707,4 +707,144 @@ public class AsyncResultT1ExtensionsTests
     }
 
     #endregion
+
+    #region EnsureAsync — extension(Task<Result<TValue>> source)
+
+    [Test]
+    public async Task EnsureAsync_TaskSource_AsyncPredicate_returns_success_when_predicate_passes()
+    {
+        var resultTask = Task.FromResult(Result<int>.Success(42));
+
+        var output = await resultTask.EnsureAsync(v => Task.FromResult(v > 0), TestError);
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task EnsureAsync_TaskSource_AsyncPredicate_returns_failure_when_predicate_fails()
+    {
+        var resultTask = Task.FromResult(Result<int>.Success(42));
+
+        var output = await resultTask.EnsureAsync(v => Task.FromResult(v > 100), TestError);
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task EnsureAsync_TaskSource_AsyncPredicate_propagates_error_when_already_failed()
+    {
+        var resultTask = Task.FromResult(Result<int>.Failure(TestError));
+
+        var output = await resultTask.EnsureAsync(v => Task.FromResult(true), Error.NotFound("nf", "not found"));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task EnsureAsync_TaskSource_SyncPredicate_returns_success_when_predicate_passes()
+    {
+        var resultTask = Task.FromResult(Result<int>.Success(42));
+
+        var output = await resultTask.EnsureAsync(v => v > 0, TestError);
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task EnsureAsync_TaskSource_SyncPredicate_returns_failure_when_predicate_fails()
+    {
+        var resultTask = Task.FromResult(Result<int>.Success(42));
+
+        var output = await resultTask.EnsureAsync(v => v > 100, TestError);
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task EnsureAsync_TaskSource_SyncPredicate_propagates_error_when_already_failed()
+    {
+        var resultTask = Task.FromResult(Result<int>.Failure(TestError));
+
+        var output = await resultTask.EnsureAsync(v => true, Error.NotFound("nf", "not found"));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
+
+    #region EnsureAsync — extension(Result<TValue> source)
+
+    [Test]
+    public async Task EnsureAsync_ResultSource_AsyncPredicate_returns_success_when_predicate_passes()
+    {
+        var result = Result<int>.Success(42);
+
+        var output = await result.EnsureAsync(v => Task.FromResult(v > 0), TestError);
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task EnsureAsync_ResultSource_AsyncPredicate_returns_failure_when_predicate_fails()
+    {
+        var result = Result<int>.Success(42);
+
+        var output = await result.EnsureAsync(v => Task.FromResult(v > 100), TestError);
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task EnsureAsync_ResultSource_AsyncPredicate_propagates_error_when_already_failed()
+    {
+        var result = Result<int>.Failure(TestError);
+
+        var output = await result.EnsureAsync(v => Task.FromResult(true), Error.NotFound("nf", "not found"));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task EnsureAsync_ResultSource_SyncPredicate_returns_success_when_predicate_passes()
+    {
+        var result = Result<int>.Success(42);
+
+        var output = await result.EnsureAsync(v => v > 0, TestError);
+
+        await Assert.That(output.IsSuccess).IsTrue();
+        await Assert.That(output.Value).IsEqualTo(42);
+    }
+
+    [Test]
+    public async Task EnsureAsync_ResultSource_SyncPredicate_returns_failure_when_predicate_fails()
+    {
+        var result = Result<int>.Success(42);
+
+        var output = await result.EnsureAsync(v => v > 100, TestError);
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    [Test]
+    public async Task EnsureAsync_ResultSource_SyncPredicate_propagates_error_when_already_failed()
+    {
+        var result = Result<int>.Failure(TestError);
+
+        var output = await result.EnsureAsync(v => true, Error.NotFound("nf", "not found"));
+
+        await Assert.That(output.IsFailure).IsTrue();
+        await Assert.That(output.Error).IsEqualTo(TestError);
+    }
+
+    #endregion
 }
