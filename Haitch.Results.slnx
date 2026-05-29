@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Haitch.Results.TestHelpers/Haitch.Results.TestHelpers.csproj" />
     <Project Path="src/Haitch.Results/Haitch.Results.csproj" />
   </Folder>
   <Folder Name="/tests/">

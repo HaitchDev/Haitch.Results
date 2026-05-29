@@ -1,3 +1,5 @@
+using Haitch.Results.TestHelpers;
+
 namespace Haitch.Results.UnitTests;
 
 public class ResultT1Tests
@@ -7,9 +9,7 @@ public class ResultT1Tests
     {
         var result = Result<int>.Success(42);
 
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.IsFailure).IsFalse();
-        await Assert.That(result.Value).IsEqualTo(42);
+        await result.AssertSuccess(42);
     }
 
     [Test]
@@ -18,9 +18,7 @@ public class ResultT1Tests
         var error = Error.Failure("oops", "Something went wrong");
         var result = Result<int>.Failure(error);
 
-        await Assert.That(result.IsFailure).IsTrue();
-        await Assert.That(result.IsSuccess).IsFalse();
-        await Assert.That(result.Error).IsEqualTo(error);
+        await result.AssertFailure(error);
     }
 
     [Test]
@@ -36,8 +34,7 @@ public class ResultT1Tests
     {
         Result<int> result = 42;
 
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.Value).IsEqualTo(42);
+        await result.AssertSuccess(42);
     }
 
     [Test]
@@ -46,8 +43,7 @@ public class ResultT1Tests
         var error = Error.Failure("oops", "Something went wrong");
         Result<int> result = error;
 
-        await Assert.That(result.IsFailure).IsTrue();
-        await Assert.That(result.Error).IsEqualTo(error);
+        await result.AssertFailure(error);
     }
 
     [Test]
@@ -97,8 +93,7 @@ public class ResultT1Tests
 
         var mapped = result.Map(v => v.ToString());
 
-        await Assert.That(mapped.IsSuccess).IsTrue();
-        await Assert.That(mapped.Value).IsEqualTo("42");
+        await mapped.AssertSuccess("42");
     }
 
     [Test]
@@ -109,8 +104,7 @@ public class ResultT1Tests
 
         var mapped = result.Map(v => v.ToString());
 
-        await Assert.That(mapped.IsFailure).IsTrue();
-        await Assert.That(mapped.Error).IsEqualTo(error);
+        await mapped.AssertFailure(error);
     }
 
     [Test]
@@ -144,8 +138,7 @@ public class ResultT1Tests
 
         var mapped = result.MapError(_ => Error.Failure("x", "x"));
 
-        await Assert.That(mapped.IsSuccess).IsTrue();
-        await Assert.That(mapped.Value).IsEqualTo(42);
+        await mapped.AssertSuccess(42);
     }
 
     [Test]
@@ -166,8 +159,7 @@ public class ResultT1Tests
 
         var bound = result.Bind(v => Result<string>.Success($"value:{v}"));
 
-        await Assert.That(bound.IsSuccess).IsTrue();
-        await Assert.That(bound.Value).IsEqualTo("value:42");
+        await bound.AssertSuccess("value:42");
     }
 
     [Test]
@@ -178,8 +170,7 @@ public class ResultT1Tests
 
         var bound = result.Bind(v => Result<string>.Success($"value:{v}"));
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo(error);
+        await bound.AssertFailure(error);
     }
 
     [Test]
@@ -190,8 +181,7 @@ public class ResultT1Tests
 
         var bound = result.Bind(_ => Result<string>.Failure(innerError));
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo(innerError);
+        await bound.AssertFailure(innerError);
     }
 
     [Test]
@@ -277,8 +267,7 @@ public class ResultT1Tests
 
         var ensured = result.Ensure(v => v > 0, error);
 
-        await Assert.That(ensured.IsFailure).IsTrue();
-        await Assert.That(ensured.Error).IsEqualTo(error);
+        await ensured.AssertFailure(error);
     }
 
     [Test]
@@ -351,8 +340,7 @@ public class ResultT1Tests
         var user = new User("Test");
         var result = Result<User>.Success(user);
 
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.Value).IsEqualTo(user);
+        await result.AssertSuccess(user);
     }
 
     [Test]

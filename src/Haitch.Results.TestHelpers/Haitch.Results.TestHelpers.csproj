@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <ItemGroup>
+        <None Include="..\..\icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\Haitch.Results\Haitch.Results.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="TUnit.Assertions" />
+    </ItemGroup>
+    
+    <PropertyGroup>
+        <PackageId>Haitch.Results.TestHelpers</PackageId>
+        <Description>Simple test helpers for Haitch.Results.</Description>
+        <PackageTags>result;errors;railway;functional;haitch;foundational;unit-tests;tunit</PackageTags>
+    </PropertyGroup>
+
+</Project>
+

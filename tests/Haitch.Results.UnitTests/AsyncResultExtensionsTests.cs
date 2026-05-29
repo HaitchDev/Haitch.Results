@@ -1,3 +1,5 @@
+using Haitch.Results.TestHelpers;
+
 namespace Haitch.Results.UnitTests;
 
 public class AsyncResultExtensionsTests
@@ -221,8 +223,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.MapAsync(() => Task.FromResult(42));
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -232,8 +233,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.MapAsync(() => Task.FromResult(42));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -243,8 +243,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.MapAsync(() => 42);
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -254,8 +253,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.MapAsync(() => 42);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion
@@ -269,8 +267,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.MapAsync(() => Task.FromResult(42));
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -280,8 +277,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.MapAsync(() => Task.FromResult(42));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -291,8 +287,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.MapAsync(() => 42);
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -302,8 +297,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.MapAsync(() => 42);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion
@@ -317,7 +311,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.MapErrorAsync(e => Task.FromResult(Error.NotFound(e.Code, e.Message)));
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -339,7 +333,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.MapErrorAsync(e => Error.NotFound(e.Code, e.Message));
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -365,7 +359,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.MapErrorAsync(e => Task.FromResult(Error.NotFound(e.Code, e.Message)));
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -387,7 +381,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.MapErrorAsync(e => Error.NotFound(e.Code, e.Message));
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -413,7 +407,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.BindAsync(() => Task.FromResult(Result.Success()));
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -423,8 +417,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.BindAsync(() => Task.FromResult(Result.Success()));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -432,9 +425,9 @@ public class AsyncResultExtensionsTests
     {
         var resultTask = Task.FromResult(Result.Success());
 
-        var output = await resultTask.BindAsync(() => Result.Success());
+        var output = await resultTask.BindAsync(Result.Success);
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -442,10 +435,9 @@ public class AsyncResultExtensionsTests
     {
         var resultTask = Task.FromResult(Result.Failure(TestError));
 
-        var output = await resultTask.BindAsync(() => Result.Success());
+        var output = await resultTask.BindAsync(Result.Success);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion
@@ -459,8 +451,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -470,8 +461,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -481,8 +471,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.BindAsync(() => Result<int>.Success(42));
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -492,8 +481,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.BindAsync(() => Result<int>.Success(42));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion
@@ -507,7 +495,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.BindAsync(() => Task.FromResult(Result.Success()));
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -517,8 +505,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.BindAsync(() => Task.FromResult(Result.Success()));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -526,9 +513,9 @@ public class AsyncResultExtensionsTests
     {
         var result = Result.Success();
 
-        var output = await result.BindAsync(() => Result.Success());
+        var output = await result.BindAsync(Result.Success);
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -536,10 +523,9 @@ public class AsyncResultExtensionsTests
     {
         var result = Result.Failure(TestError);
 
-        var output = await result.BindAsync(() => Result.Success());
+        var output = await result.BindAsync(Result.Success);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion
@@ -553,8 +539,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -564,8 +549,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.BindAsync(() => Task.FromResult(Result<int>.Success(42)));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -575,8 +559,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.BindAsync(() => Result<int>.Success(42));
 
-        await Assert.That(output.IsSuccess).IsTrue();
-        await Assert.That(output.Value).IsEqualTo(42);
+        await output.AssertSuccess(42);
     }
 
     [Test]
@@ -586,8 +569,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.BindAsync(() => Result<int>.Success(42));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion
@@ -602,7 +584,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.TapAsync(() => { tapped = true; return Task.CompletedTask; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsTrue();
     }
 
@@ -626,7 +608,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.TapAsync(() => { tapped = true; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsTrue();
     }
 
@@ -654,7 +636,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.TapAsync(() => { tapped = true; return Task.CompletedTask; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsTrue();
     }
 
@@ -678,7 +660,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.TapAsync(() => { tapped = true; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsTrue();
     }
 
@@ -704,9 +686,9 @@ public class AsyncResultExtensionsTests
         var resultTask = Task.FromResult(Result.Success());
         var tapped = false;
 
-        var output = await resultTask.TapErrorAsync(e => { tapped = true; return Task.CompletedTask; });
+        var output = await resultTask.TapErrorAsync(_ => { tapped = true; return Task.CompletedTask; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsFalse();
     }
 
@@ -728,9 +710,9 @@ public class AsyncResultExtensionsTests
         var resultTask = Task.FromResult(Result.Success());
         var tapped = false;
 
-        var output = await resultTask.TapErrorAsync(e => { tapped = true; });
+        var output = await resultTask.TapErrorAsync(_ => { tapped = true; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsFalse();
     }
 
@@ -756,9 +738,9 @@ public class AsyncResultExtensionsTests
         var result = Result.Success();
         var tapped = false;
 
-        var output = await result.TapErrorAsync(e => { tapped = true; return Task.CompletedTask; });
+        var output = await result.TapErrorAsync(_ => { tapped = true; return Task.CompletedTask; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsFalse();
     }
 
@@ -780,9 +762,9 @@ public class AsyncResultExtensionsTests
         var result = Result.Success();
         var tapped = false;
 
-        var output = await result.TapErrorAsync(e => { tapped = true; });
+        var output = await result.TapErrorAsync(_ => { tapped = true; });
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
         await Assert.That(tapped).IsFalse();
     }
 
@@ -809,7 +791,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.EnsureAsync(() => Task.FromResult(true), TestError);
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -819,8 +801,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.EnsureAsync(() => Task.FromResult(false), TestError);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -830,8 +811,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.EnsureAsync(() => Task.FromResult(true), Error.NotFound("nf", "not found"));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -841,7 +821,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.EnsureAsync(() => true, TestError);
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -851,8 +831,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.EnsureAsync(() => false, TestError);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -862,8 +841,7 @@ public class AsyncResultExtensionsTests
 
         var output = await resultTask.EnsureAsync(() => true, Error.NotFound("nf", "not found"));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion
@@ -877,7 +855,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.EnsureAsync(() => Task.FromResult(true), TestError);
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -887,8 +865,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.EnsureAsync(() => Task.FromResult(false), TestError);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -898,8 +875,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.EnsureAsync(() => Task.FromResult(true), Error.NotFound("nf", "not found"));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -909,7 +885,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.EnsureAsync(() => true, TestError);
 
-        await Assert.That(output.IsSuccess).IsTrue();
+        await output.AssertSuccess();
     }
 
     [Test]
@@ -919,8 +895,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.EnsureAsync(() => false, TestError);
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     [Test]
@@ -930,8 +905,7 @@ public class AsyncResultExtensionsTests
 
         var output = await result.EnsureAsync(() => true, Error.NotFound("nf", "not found"));
 
-        await Assert.That(output.IsFailure).IsTrue();
-        await Assert.That(output.Error).IsEqualTo(TestError);
+        await output.AssertFailure(TestError);
     }
 
     #endregion

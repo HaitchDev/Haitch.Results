@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Haitch.Results.TestHelpers\Haitch.Results.TestHelpers.csproj" />
         <ProjectReference Include="..\..\src\Haitch.Results\Haitch.Results.csproj" />
     </ItemGroup>
 

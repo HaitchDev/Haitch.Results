@@ -1,3 +1,5 @@
+using Haitch.Results.TestHelpers;
+
 namespace Haitch.Results.UnitTests;
 
 public class ResultT2Tests
@@ -7,9 +9,7 @@ public class ResultT2Tests
     {
         var result = Result<int, string>.Success(42);
 
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.IsFailure).IsFalse();
-        await Assert.That(result.Value).IsEqualTo(42);
+        await result.AssertSuccess(42);
     }
 
     [Test]
@@ -17,9 +17,7 @@ public class ResultT2Tests
     {
         var result = Result<int, string>.Failure("oops");
 
-        await Assert.That(result.IsFailure).IsTrue();
-        await Assert.That(result.IsSuccess).IsFalse();
-        await Assert.That(result.Error).IsEqualTo("oops");
+        await result.AssertFailure("oops");
     }
 
     [Test]
@@ -35,8 +33,7 @@ public class ResultT2Tests
     {
         Result<int, string> result = 42;
 
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.Value).IsEqualTo(42);
+        await result.AssertSuccess(42);
     }
 
     [Test]
@@ -44,8 +41,7 @@ public class ResultT2Tests
     {
         Result<int, string> result = "oops";
 
-        await Assert.That(result.IsFailure).IsTrue();
-        await Assert.That(result.Error).IsEqualTo("oops");
+        await result.AssertFailure("oops");
     }
 
     [Test]
@@ -95,8 +91,7 @@ public class ResultT2Tests
 
         var mapped = result.Map(v => v.ToString());
 
-        await Assert.That(mapped.IsSuccess).IsTrue();
-        await Assert.That(mapped.Value).IsEqualTo("42");
+        await mapped.AssertSuccess("42");
     }
 
     [Test]
@@ -106,8 +101,7 @@ public class ResultT2Tests
 
         var mapped = result.Map(v => v.ToString());
 
-        await Assert.That(mapped.IsFailure).IsTrue();
-        await Assert.That(mapped.Error).IsEqualTo("oops");
+        await mapped.AssertFailure("oops");
     }
 
     [Test]
@@ -128,8 +122,7 @@ public class ResultT2Tests
 
         var mapped = result.MapError(e => $"wrapped:{e}");
 
-        await Assert.That(mapped.IsFailure).IsTrue();
-        await Assert.That(mapped.Error).IsEqualTo("wrapped:oops");
+        await mapped.AssertFailure("wrapped:oops");
     }
 
     [Test]
@@ -152,8 +145,7 @@ public class ResultT2Tests
 
         var mapped = result.MapError(e => $"wrapped:{e}");
 
-        await Assert.That(mapped.IsSuccess).IsTrue();
-        await Assert.That(mapped.Value).IsEqualTo(42);
+        await mapped.AssertSuccess(42);
     }
 
     [Test]
@@ -174,8 +166,7 @@ public class ResultT2Tests
 
         var bound = result.Bind(v => Result<string, string>.Success($"value:{v}"));
 
-        await Assert.That(bound.IsSuccess).IsTrue();
-        await Assert.That(bound.Value).IsEqualTo("value:42");
+        await bound.AssertSuccess("value:42");
     }
 
     [Test]
@@ -185,8 +176,7 @@ public class ResultT2Tests
 
         var bound = result.Bind(v => Result<string, string>.Success($"value:{v}"));
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo("oops");
+        await bound.AssertFailure("oops");
     }
 
     [Test]
@@ -196,8 +186,7 @@ public class ResultT2Tests
 
         var bound = result.Bind(_ => Result<string, string>.Failure("inner"));
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo("inner");
+        await bound.AssertFailure("inner");
     }
 
     [Test]
@@ -280,8 +269,7 @@ public class ResultT2Tests
 
         var ensured = result.Ensure(v => v > 0, "must be positive");
 
-        await Assert.That(ensured.IsFailure).IsTrue();
-        await Assert.That(ensured.Error).IsEqualTo("must be positive");
+        await ensured.AssertFailure("must be positive");
     }
 
     [Test]
@@ -352,8 +340,7 @@ public class ResultT2Tests
         var user = new User("Test");
         var result = Result<User, Error>.Success(user);
 
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.Value).IsEqualTo(user);
+        await result.AssertSuccess(user);
     }
 
     [Test]
@@ -362,8 +349,7 @@ public class ResultT2Tests
         var error = Error.NotFound("user.not_found", "User not found");
         Result<User, Error> result = error;
 
-        await Assert.That(result.IsFailure).IsTrue();
-        await Assert.That(result.Error).IsEqualTo(error);
+        await result.AssertFailure(error);
     }
 
     private sealed record User(string Name);

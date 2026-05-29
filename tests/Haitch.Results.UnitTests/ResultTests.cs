@@ -1,3 +1,5 @@
+using Haitch.Results.TestHelpers;
+
 namespace Haitch.Results.UnitTests;
 
 public class ResultTests
@@ -7,8 +9,7 @@ public class ResultTests
     {
         var result = Result.Success();
 
-        await Assert.That(result.IsSuccess).IsTrue();
-        await Assert.That(result.IsFailure).IsFalse();
+        await result.AssertSuccess();
     }
 
     [Test]
@@ -17,9 +18,7 @@ public class ResultTests
         var error = Error.Failure("oops", "Something went wrong");
         var result = Result.Failure(error);
 
-        await Assert.That(result.IsFailure).IsTrue();
-        await Assert.That(result.IsSuccess).IsFalse();
-        await Assert.That(result.Error).IsEqualTo(error);
+        await result.AssertFailure(error);
     }
 
     [Test]
@@ -36,8 +35,7 @@ public class ResultTests
         var error = Error.Failure("oops", "Something went wrong");
         Result result = error;
 
-        await Assert.That(result.IsFailure).IsTrue();
-        await Assert.That(result.Error).IsEqualTo(error);
+        await result.AssertFailure(error);
     }
 
     [Test]
@@ -79,8 +77,7 @@ public class ResultTests
 
         var mapped = result.Map(() => 42);
 
-        await Assert.That(mapped.IsSuccess).IsTrue();
-        await Assert.That(mapped.Value).IsEqualTo(42);
+        await mapped.AssertSuccess(42);
     }
 
     [Test]
@@ -91,8 +88,7 @@ public class ResultTests
 
         var mapped = result.Map(() => 42);
 
-        await Assert.That(mapped.IsFailure).IsTrue();
-        await Assert.That(mapped.Error).IsEqualTo(error);
+        await mapped.AssertFailure(error);
     }
 
     [Test]
@@ -130,7 +126,7 @@ public class ResultTests
 
         var mapped = result.MapError(_ => Error.Failure("x", "x"));
 
-        await Assert.That(mapped.IsSuccess).IsTrue();
+        await mapped.AssertSuccess();
     }
 
     [Test]
@@ -161,7 +157,7 @@ public class ResultTests
         });
 
         await Assert.That(invoked).IsTrue();
-        await Assert.That(bound.IsSuccess).IsTrue();
+        await bound.AssertSuccess();
     }
 
     [Test]
@@ -172,8 +168,7 @@ public class ResultTests
 
         var bound = result.Bind(Result.Success);
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo(error);
+        await bound.AssertFailure(error);
     }
 
     [Test]
@@ -184,8 +179,7 @@ public class ResultTests
 
         var bound = result.Bind(() => Result.Failure(innerError));
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo(innerError);
+        await bound.AssertFailure(innerError);
     }
 
     [Test]
@@ -210,8 +204,7 @@ public class ResultTests
 
         var bound = result.Bind(() => Result<int>.Success(42));
 
-        await Assert.That(bound.IsSuccess).IsTrue();
-        await Assert.That(bound.Value).IsEqualTo(42);
+        await bound.AssertSuccess(42);
     }
 
     [Test]
@@ -222,8 +215,7 @@ public class ResultTests
 
         var bound = result.Bind(() => Result<int>.Success(42));
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo(error);
+        await bound.AssertFailure(error);
     }
 
     [Test]
@@ -234,8 +226,7 @@ public class ResultTests
 
         var bound = result.Bind(() => Result<int>.Failure(innerError));
 
-        await Assert.That(bound.IsFailure).IsTrue();
-        await Assert.That(bound.Error).IsEqualTo(innerError);
+        await bound.AssertFailure(innerError);
     }
 
     [Test]
@@ -321,8 +312,7 @@ public class ResultTests
 
         var ensured = result.Ensure(() => false, error);
 
-        await Assert.That(ensured.IsFailure).IsTrue();
-        await Assert.That(ensured.Error).IsEqualTo(error);
+        await ensured.AssertFailure(error);
     }
 
     [Test]

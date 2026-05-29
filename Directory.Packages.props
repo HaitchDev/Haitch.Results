@@ -1,9 +1,10 @@
 <Project>
   <PropertyGroup>
-      <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-      <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.201" />
-      <PackageVersion Include="TUnit" Version="1.31.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+    <PackageVersion Include="TUnit" Version="1.47.0" />
+    <PackageVersion Include="TUnit.Assertions" Version="1.47.0" />
   </ItemGroup>
 </Project>
