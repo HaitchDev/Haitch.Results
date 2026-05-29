@@ -19,7 +19,7 @@
         <Deterministic>true</Deterministic>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>0.3.0</Version>
+        <Version>0.4.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
