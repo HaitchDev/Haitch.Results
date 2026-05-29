@@ -6,7 +6,7 @@ namespace Haitch.Results;
 /// Represents the outcome of an operation that either succeeds with no value
 /// or fails with an <see cref="Haitch.Results.Error"/>.
 /// </summary>
-public readonly struct Result : IEquatable<Result>
+public readonly partial struct Result : IEquatable<Result>
 {
     private readonly Error? _error;
 

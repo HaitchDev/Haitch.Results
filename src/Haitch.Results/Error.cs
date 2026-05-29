@@ -10,6 +10,16 @@ namespace Haitch.Results;
 public readonly record struct Error(string Code, string Message, ErrorType Type = ErrorType.Failure)
 {
     /// <summary>
+    /// The default <see cref="Code"/> used for an aggregate error when no override is supplied.
+    /// </summary>
+    public const string DefaultAggregateCode = "general.aggregate";
+
+    /// <summary>
+    /// The default <see cref="Message"/> used for an aggregate error when no override is supplied.
+    /// </summary>
+    public const string DefaultAggregateMessage = "One or more errors occurred.";
+
+    /// <summary>
     /// Optional field holding all the child errors occurred along with the error.
     /// This effectively makes this <see cref="Error"/> object an aggregate of errors.
     /// </summary>
@@ -85,7 +95,26 @@ public readonly record struct Error(string Code, string Message, ErrorType Type 
     /// <param name="message">A human-readable description of what went wrong.</param>
     public static Error Unexpected(string code, string message)
         => new(code, message, ErrorType.Unexpected);
-    
+
+    /// <summary>
+    /// Creates an aggregate <see cref="Error"/> wrapping the supplied <paramref name="childErrors"/>,
+    /// categorized as <see cref="ErrorType.Aggregate"/>, using the default
+    /// <see cref="DefaultAggregateCode"/> and <see cref="DefaultAggregateMessage"/>.
+    /// </summary>
+    /// <param name="childErrors">The underlying errors to aggregate.</param>
+    public static Error Aggregate(Error[] childErrors)
+        => new(DefaultAggregateCode, DefaultAggregateMessage, ErrorType.Aggregate) { ChildErrors = childErrors };
+
+    /// <summary>
+    /// Creates an aggregate <see cref="Error"/> wrapping the supplied <paramref name="childErrors"/>,
+    /// categorized as <see cref="ErrorType.Aggregate"/>, with a custom top-level code and message.
+    /// </summary>
+    /// <param name="code">A short, stable identifier for the aggregate error.</param>
+    /// <param name="message">A human-readable description of the aggregate failure.</param>
+    /// <param name="childErrors">The underlying errors to aggregate.</param>
+    public static Error Aggregate(string code, string message, Error[] childErrors)
+        => new(code, message, ErrorType.Aggregate) { ChildErrors = childErrors };
+
     /// <inheritdoc/>
     public bool Equals(Error other)
     {

@@ -39,5 +39,11 @@ public enum ErrorType
     /// <summary>
     /// Represents an error category for unexpected or unhandled scenarios that do not fall into predefined error types.
     /// </summary>
-    Unexpected
+    Unexpected,
+
+    /// <summary>
+    /// Represents an error that aggregates one or more underlying errors, exposed via
+    /// <see cref="Error.ChildErrors"/>. Typically produced when combining multiple results.
+    /// </summary>
+    Aggregate
 }
